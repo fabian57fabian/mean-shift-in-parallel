@@ -1,8 +1,6 @@
-__global__ void cuda_hello(){
-    printf("Hello World from GPU!\n");
-}
+#include "mean_shift.cu"
 
 int main() {
-    cuda_hello<<<1,1>>>(); 
+    execute_ms()
     return 0;
 }
