@@ -1,4 +1,4 @@
-#include "mean_shift.cu"
+#include "mean_shift.h"
 
 int main() {
     execute_ms()
