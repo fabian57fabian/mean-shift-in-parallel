@@ -3,7 +3,8 @@
 #include <iostream>
 
 __global__ void add() {
-    printf("CACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaAAAAAAAAAAA");
+    int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    printf("Hello from cuda thread %d \n", idx);
 }
 
 int main() {
