@@ -12,6 +12,7 @@ set(TOOL_FILES
 )
 
 set(SRC_FILES 
+    utility.h
     main.cu
 )
 
@@ -21,9 +22,9 @@ add_library(libSrc STATIC ${SRC_FILES})
 
 ## C++
 set(CMAKE_CXX_COMPILER)
-find_package(X11 REQUIRED)
-find_package(Threads REQUIRED)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
+# find_package(X11 REQUIRED)
+# find_package(Threads REQUIRED)
+# set(THREADS_PREFER_PTHREAD_FLAG ON)
 #add_executable(execute_all main.cu)
 #target_link_libraries(mm_sequential libTool libSrc
 #    Threads::Threads X11 -lpng -lstdc++fs -std=c++17
