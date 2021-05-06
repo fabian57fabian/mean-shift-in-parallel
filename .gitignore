@@ -16,3 +16,7 @@
 
 # Local History for Visual Studio Code
 .history/
+
+# Docker
+dockerfile
+docker-compose.yaml
