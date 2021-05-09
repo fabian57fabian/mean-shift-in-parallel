@@ -4,47 +4,60 @@
 #include <iostream>
 #include "utils.h"
 
-namespace mean_shift_naive_ms {
+const float RADIUS = 60;
+const float SIGMA = 4;
+const float DBL_SIGMA_SQ = (2 * SIGMA * SIGMA);
+const float MIN_DISTANCE = 60;
+const size_t NUM_ITER = 50;
+const float DIST_TO_REAL = 10;
+// Dataset
+const std::string PATH_TO_DATA = "../../datas/1000/random_pts_1k.csv";
+const std::string PATH_TO_CENTROIDS = "../../datas/1000/random_cts_1k.csv";
+const int N = 1000;
+const int D = 2;
+const int M = 3;
+// Device
+const int THREADS = 64;
+const int BLOCKS = (N + THREADS - 1) / THREADS;
+const int TILE_WIDTH = THREADS;
 
-    __global__ void mean_shift(float *data, float *data_next) {
-        size_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;
-        if (tid < N) {
-            size_t row = tid * D;
-            float new_position[D] = {0.};
-            float tot_weight = 0.;
-            for (size_t i = 0; i < N; ++i) {
-                size_t row_n = i * D;
-                float sq_dist = 0.;
-                for (size_t j = 0; j < D; ++j) {
-                    sq_dist += (data[row + j] - data[row_n + j]) * (data[row + j] - data[row_n + j]);
-                }
-                if (sq_dist <= RADIUS) {
-                    float weight = expf(-sq_dist / DBL_SIGMA_SQ);
-                    for (size_t j = 0; j < D; ++j) {
-                        new_position[j] += weight * data[row_n + j];
-                    }
-                    tot_weight += weight;
-                }
-            }
+__global__ void mean_shift_naive(float *data, float *data_next) {
+    size_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;
+    if (tid < N) {
+        size_t row = tid * D;
+        float new_position[D] = {0.};
+        float tot_weight = 0.;
+        for (size_t i = 0; i < N; ++i) {
+            size_t row_n = i * D;
+            float sq_dist = 0.;
             for (size_t j = 0; j < D; ++j) {
-                data_next[row + j] = new_position[j] / tot_weight;
+                sq_dist += (data[row + j] - data[row_n + j]) * (data[row + j] - data[row_n + j]);
+            }
+            if (sq_dist <= RADIUS) {
+                float weight = expf(-sq_dist / DBL_SIGMA_SQ);
+                for (size_t j = 0; j < D; ++j) {
+                    new_position[j] += weight * data[row_n + j];
+                }
+                tot_weight += weight;
             }
         }
-        return;
+        for (size_t j = 0; j < D; ++j) {
+            data_next[row + j] = new_position[j] / tot_weight;
+        }
     }
-
+    return;
 }
 
 int main() {
 
-    constexpr auto N = constraints_nsN;
-    constexpr auto D = constraints_nsD;
-    constexpr auto M = constraints_nsM;
-    constexpr auto THREADS = constraints_nsTHREADS;
-    constexpr auto BLOCKS = constraints_nsBLOCKS;
-    const auto PATH_TO_DATA = constraints_nsPATH_TO_DATA; 
-    const auto PATH_TO_CENTROIDS = constraints_nsPATH_TO_CENTROIDS;
-    constexpr auto DIST_TO_REAL = constraints_nsDIST_TO_REAL;
+    constexpr auto N = N;
+    constexpr auto D = D;
+    constexpr auto M = M;
+    constexpr auto THREADS = THREADS;
+    constexpr auto BLOCKS = BLOCKS;
+    const auto PATH_TO_DATA = PATH_TO_DATA; 
+    const auto PATH_TO_CENTROIDS = PATH_TO_CENTROIDS;
+    constexpr auto DIST_TO_REAL = DIST_TO_REAL;
 
     utils_ns::print_info(PATH_TO_DATA, N, D, BLOCKS, THREADS);
 
@@ -63,12 +76,12 @@ int main() {
     // Run mean shift clustering and time the execution
     const auto before = std::chrono::system_clock::now();
     for (size_t i = 0; i < NUM_ITER; ++i) {
-        mean_shift<<<BLOCKS, THREADS>>>(dev_data, dev_data_next);
+        mean_shift_naive<<<BLOCKS, THREADS>>>(dev_data, dev_data_next);
         cudaDeviceSynchronize();
         utils_ns::swap(dev_data, dev_data_next);
     }
     cudaMemcpy(data.data(), dev_data, data_bytes, cudaMemcpyDeviceToHost);
-    const auto centroids = utils_ns::reduce_to_centroids<N, D>(data, constraints_nsMIN_DISTANCE);
+    const auto centroids = utils_ns::reduce_to_centroids<N, D>(data, MIN_DISTANCE);
     const auto after = std::chrono::system_clock::now();
     const std::chrono::duration<double, std::milli> duration = after - before;
     std::cout << "\nNaive took " << duration.count() << " ms\n" << std::endl;

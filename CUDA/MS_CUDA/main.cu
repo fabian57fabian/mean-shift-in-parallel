@@ -4,22 +4,22 @@
 #include "utils.h"
 #include <stdio.h>
 
-constexpr float RADIUS = 60;
-constexpr float SIGMA = 4;
-constexpr float DBL_SIGMA_SQ = (2 * SIGMA * SIGMA);
-constexpr float MIN_DISTANCE = 60;
-constexpr size_t NUM_ITER = 50;
-constexpr float DIST_TO_REAL = 10;
+const float RADIUS = 60;
+const float SIGMA = 4;
+const float DBL_SIGMA_SQ = (2 * SIGMA * SIGMA);
+const float MIN_DISTANCE = 60;
+const size_t NUM_ITER = 50;
+const float DIST_TO_REAL = 10;
 // Dataset
-const std::string PATH_TO_DATA = "../../../datas/1000/random_pts_1k.csv";
+const std::string PATH_TO_DATA = "../../datas/1000/random_pts_1k.csv";
 const std::string PATH_TO_CENTROIDS = "../../datas/1000/random_cts_1k.csv";
-constexpr int N = 5000;
-constexpr int D = 3;
-constexpr int M = 3;
+const int N = 1000;
+const int D = 2;
+const int M = 3;
 // Device
-constexpr int THREADS = 64;
-constexpr int BLOCKS = (N + THREADS - 1) / THREADS;
-constexpr int TILE_WIDTH = THREADS;
+const int THREADS = 64;
+const int BLOCKS = (N + THREADS - 1) / THREADS;
+const int TILE_WIDTH = THREADS;
 
 __global__ void mean_shift_tiling(const float* data, float* data_next) {
 
@@ -75,6 +75,7 @@ __global__ void mean_shift_tiling(const float* data, float* data_next) {
 }
 
 int main() {
+    const auto start_prog = std::chrono::system_clock::now();
     utils_ns::print_info(PATH_TO_DATA, N, D, BLOCKS, THREADS, TILE_WIDTH);
     std::cout << "Loading csv" << std::endl;
     // Load data
@@ -113,7 +114,8 @@ int main() {
     const std::array<float, M * D> real = utils_ns::load_csv<M, D>(PATH_TO_CENTROIDS, ',');
     const bool are_close = utils_ns::are_close_to_real<M, D>(centroids, real, DIST_TO_REAL);
     assert(are_close);
-    std::cout << "SUCCESS!\n";
+    const std::chrono::duration<double, std::milli> duration_all = std::chrono::system_clock::now() - start_prog;
+    std::cout << "PROCESS ENDED in "<< duration_all.count() <<"ms\n";
 
     return 0;
 }
