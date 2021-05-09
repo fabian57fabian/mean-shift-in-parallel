@@ -6,13 +6,11 @@ set(CMAKE_CXX_STANDARD 17)
 #include_directories()
 
 set(TOOL_FILES
-    test.h
-    test.cpp
-    utils.cuh
+    utils.h
+    utils.cpp
 )
 
-set(SRC_FILES 
-    utility.h
+set(SRC_FILES
     main.cu
 )
 
@@ -22,7 +20,7 @@ add_library(libSrc STATIC ${SRC_FILES})
 
 ## C++
 set(CMAKE_CXX_COMPILER)
-# find_package(X11 REQUIRED)
+#find_package(X11 REQUIRED)
 # find_package(Threads REQUIRED)
 # set(THREADS_PREFER_PTHREAD_FLAG ON)
 #add_executable(execute_all main.cu)
@@ -37,8 +35,10 @@ set(CUDA_SEPARABLE_COMPILATION ON)
 set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 # CUDA version
-add_executable(exec_cuda main.cu)
-#target_link_libraries(exec_cuda libTool libSrc -lstdc++fs)
+add_executable(exec_cuda_sm main.cu)
+target_link_libraries(exec_cuda_sm libTool libSrc -std=c++17)
+set_property(TARGET exec_cuda_sm PROPERTY CXX_STANDARD 17)
+set_property(TARGET exec_cuda_sm PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # OPENMP version
 #add_executable(mm_sharedOpt CUDA/sharedOpt.cu)
