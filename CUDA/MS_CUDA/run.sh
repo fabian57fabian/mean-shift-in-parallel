@@ -1,1 +1,2 @@
-./build/exec_cuda_sm
+./build.sh
+./execute.sh
