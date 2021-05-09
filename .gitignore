@@ -18,5 +18,8 @@
 .history/
 
 # Docker
-dockerfile
+Dockerfile
 docker-compose.yaml
+
+# Makefile
+build/
