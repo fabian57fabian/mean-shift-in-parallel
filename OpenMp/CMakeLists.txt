@@ -8,14 +8,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp")
 
 ## libraries
 include_directories(include datas)
-# set(INCLUDE_FILES 
-#     include/meanShift.hpp 
-#     include/utils.hpp
-#     include/utils.cpp
-#     include/geometricFunction.hpp)
 set(INCLUDE_FILES 
+    include/meanShiftOmp.hpp 
     include/utils.hpp
-    include/utils.cpp)
+    include/utils.cpp
+    include/geometricFunction.hpp)
+
 add_library(libInclude STATIC ${INCLUDE_FILES})
 
 ## C++

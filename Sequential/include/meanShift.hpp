@@ -15,8 +15,6 @@ namespace ms
         std::vector<utils::vec<T, D>> cluster_points(utils::mat<T, N, D> &data, const size_t niter, const float bandwidth, const float radius, const float min_distance)
         {
             const float double_sqr_bdw = 2 * bandwidth * bandwidth;
-            // utils::vec<bool, N> has_stopped{false};
-            // std::vector<utils::vec<T, D>> centroids;
             utils::mat<T, N, D> new_data;
             for (size_t i = 0; i < niter; ++i)
             {
@@ -35,7 +33,6 @@ namespace ms
                             sum_weights += gaussian;
                         }
                     }
-                    // new_position = new_position / sum_weights;
                     new_data[p] = utils::op::operator/(new_position, sum_weights);
                 }
                 data = new_data;
