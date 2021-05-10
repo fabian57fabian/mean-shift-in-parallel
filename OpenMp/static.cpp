@@ -28,7 +28,6 @@ int main(int argc, char const *argv[])
 
     auto start = std::chrono::high_resolution_clock::now();
     const std::vector<utils::vec<float, dim>> centroids = ms::omp::stat::cluster_points<float, num_points, dim>(data, niter, bandwidth, radius, min_distance, nthreads);
-    // const std::vector<utils::vec<float, dim>> centroids = ms::omp::dyn::cluster_points<float, num_points, dim>(data, niter, bandwidth, radius, min_distance);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 

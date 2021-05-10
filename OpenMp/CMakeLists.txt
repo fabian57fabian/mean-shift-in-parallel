@@ -16,8 +16,14 @@ set(INCLUDE_FILES
 
 add_library(libInclude STATIC ${INCLUDE_FILES})
 
-## C++
+## CPP
 set(CMAKE_CXX_COMPILER)
 find_package(X11 REQUIRED)
-add_executable(ms_openmp main.cpp)
-target_link_libraries(ms_openmp libInclude X11 -lstdc++fs -std=c++17 -fopenmp)
+
+# Static
+add_executable(ms_omp_static static.cpp)
+target_link_libraries(ms_omp_static libInclude X11 -lstdc++fs -std=c++17 -fopenmp)
+
+# Dynamic
+add_executable(ms_omp_dynamic dynamic.cpp)
+target_link_libraries(ms_omp_dynamic libInclude X11 -lstdc++fs -std=c++17 -fopenmp)

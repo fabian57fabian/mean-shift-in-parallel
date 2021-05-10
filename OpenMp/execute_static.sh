@@ -1,1 +1,1 @@
-./build/static
+./build/ms_omp_static

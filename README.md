@@ -32,7 +32,8 @@ Mean shift [algorithm](https://en.wikipedia.org/wiki/Mean_shift) implemented in 
 │   │   ├── geometricFunction.hpp 
 ├── OpenMp               # handled by @AngeloDamante
 │   ├── CMakeLists.txt        # C make file
-│   ├── main.cpp              # main parallel source file
+│   ├── static.cpp             # parallel main of static version
+│   ├── dynamic.cpp             # parallel main of dynamic version
 │   ├── include                   # folder with header files
 │   │   ├── meanShiftOmp.hpp
 │   │   ├── utils.hpp
@@ -51,15 +52,18 @@ cd Sequential
 
 ## Parallel OpenMP version
 Implementation of parallel version with openMp fork-join paradigm. For this version, two versions were implemented, <i>static</i> and <i>dynamic</i>.
+
+To run static version,
 ```
 cd OpenMp
-mkdir build
-cd build
-cmake .. && make
-./ms_static     # static version
-./ms_dynamic    # dynamic version
+./run_static_version.sh
 ```
 
+and for dynamic version
+```
+cd OpenMp
+./run_dynamic_version.sh
+```
 
 ## Parallel CUDA version
 
