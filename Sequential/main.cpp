@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
     const utils::mat<float, num_centroids, dim> real_centroids = utils::IO::load_csv<float, num_centroids, dim>(centroids_path, ',');
 
     auto start = std::chrono::high_resolution_clock::now();
-    const std::vector<utils::vec<float, dim>> centroids = ms::cluster_points<float, num_points, dim>(data, niter, bandwidth, radius, min_distance);
+    const std::vector<utils::vec<float, dim>> centroids = ms::seq::cluster_points<float, num_points, dim>(data, niter, bandwidth, radius, min_distance);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     
