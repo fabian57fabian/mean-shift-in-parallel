@@ -45,10 +45,7 @@ Implementation of mean-shift algorithm in sequential version.
 
 ```
 cd Sequential 
-mkdir build
-cd build
-cmake .. && make
-./ms_sequential
+./run.sh
 ```
 
 
