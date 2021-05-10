@@ -13,8 +13,8 @@ const double eps = 10;
 // Datas
 const size_t num_points = 1000;
 const size_t dim = 2;
-const std::string data_path = "../../datas/1000/random_pts_1k.csv";
-const std::string centroids_path = "../../datas/1000/random_cts_1k.csv";
+const std::string data_path = "../../datas/1000/points.csv";
+const std::string centroids_path = "../../datas/1000/centroids.csv";
 
 // Check
 const size_t num_centroids = 3;
