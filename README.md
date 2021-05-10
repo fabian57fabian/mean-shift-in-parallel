@@ -1,5 +1,9 @@
 # mean-shift-in-parallel
-Mean shift algorithm implemented in sequential and parallel methods for study purposes.
+Mean shift [algorithm](https://en.wikipedia.org/wiki/Mean_shift) implemented in sequential and parallel methods for study purposes.
+
+<p align=center>
+    <img src="https://latex.codecogs.com/gif.latex?m(x)&space;=&space;\frac{\sum_{x_i&space;\in&space;N(x)}&space;K(x_i&space;-&space;x)&space;x_i}{\sum_{x_i&space;\in&space;N(x)}&space;K(x_i&space;-&space;x)}" title="m(x) = \frac{\sum_{x_i \in N(x)} K(x_i - x) x_i}{\sum_{x_i \in N(x)} K(x_i - x)}" />
+</p>
 
 ### Project tree
 
@@ -26,15 +30,38 @@ Mean shift algorithm implemented in sequential and parallel methods for study pu
 │   │   ├── meanShift.hpp
 │   │   ├── utils.hpp
 │   │   ├── geometricFunction.hpp 
+├── OpenMp               # handled by @AngeloDamante
+│   ├── CMakeLists.txt        # C make file
+│   ├── main.cpp              # main parallel source file
+│   ├── include                   # folder with header files
+│   │   ├── meanShiftOmp.hpp
+│   │   ├── utils.hpp
+│   │   ├── geometricFunction.hpp 
 ```
 
 
 ## Sequential version
-under matainance
+Implementation of mean-shift algorithm in sequential version.
+
+```
+cd Sequential 
+mkdir build
+cd build
+cmake .. && make
+./ms_sequential
+```
 
 
 ## Parallel OpenMP version
-under matainance
+Implementation of parallel version with openMp fork-join paradigm. For this version, two versions were implemented, <i>static</i> and <i>dynamic</i>.
+```
+cd OpenMp
+mkdir build
+cd build
+cmake .. && make
+./ms_static     # static version
+./ms_dynamic    # dynamic version
+```
 
 
 ## Parallel CUDA version
