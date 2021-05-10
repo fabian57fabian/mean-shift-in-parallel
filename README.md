@@ -49,3 +49,7 @@ cd CUDA/MS_CUDA
 ```
 
 Inside CUDA/MS_CUDA one can also find a ./build.sh file that creates a bild folder and builds the projects.
+
+## Authors
++ <a href="https://github.com/AngeloDamante"> Angelo D'Amante </a>
++ <a href="https://github.com/fabian57fabian"> Fabian Greavu </a>
