@@ -29,7 +29,7 @@ def generate_dataset(N, centroids, sigmas):
 
 
 if __name__ == "__main__":
-    centroids = [[2, 3], [5, 1], [10, 8]]
+    centroids = [[1, 9], [9, 1], [10, 9]]
     sigmas = [[1, 1.5] for _ in centroids]
     for N in [1000, 5000, 10000, 50000, 100000]:
         generate_dataset(N, centroids, sigmas)

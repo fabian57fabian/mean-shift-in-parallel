@@ -11,8 +11,8 @@ const float MIN_DISTANCE = 60;
 const size_t NUM_ITER = 50;
 const float DIST_TO_REAL = 10;
 // Dataset
-const std::string PATH_TO_DATA = "../../datas/1000/random_pts_1k.csv";
-const std::string PATH_TO_CENTROIDS = "../../datas/1000/random_cts_1k.csv";
+const std::string PATH_TO_DATA = "../../datas/1000/points.csv";
+const std::string PATH_TO_CENTROIDS = "../../datas/1000/centroids.csv";
 const int N = 1000;
 const int D = 2;
 const int M = 3;
