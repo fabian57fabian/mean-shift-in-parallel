@@ -2,6 +2,7 @@
 WORKING_DIR="datas"
 echo "Removing temporany datas"
 if [ -d "$WORKING_DIR" ]; then rm $WORKING_DIR -r; fi
+mkdir datas
 echo "Downloading datas"
 wget https://github.com/fabian57fabian/mean-shift-in-parallel/releases/download/0.1/datas.tar.gz
 echo "Extracting datas"
