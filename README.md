@@ -22,6 +22,10 @@ Mean shift algorithm implemented in sequential and parallel methods for study pu
 ├── Sequential            # handled by @AngeloDamante
 │   ├── CMakeLists.txt        # C make file
 │   ├── main.cpp              # main sequential source file
+│   ├── include                   # folder with header files
+│   │   ├── meanShift.hpp
+│   │   ├── utils.hpp
+│   │   ├── geometricFunction.hpp 
 ```
 
 
