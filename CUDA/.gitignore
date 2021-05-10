@@ -19,3 +19,5 @@
 
 # CMakeLists
 build/
+MS_cuda/build
+MS_cuda/build/*
