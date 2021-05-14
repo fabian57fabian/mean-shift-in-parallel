@@ -1,23 +1,30 @@
 #include <chrono>
-#include "constants.h"
 #include <cuda.h>
 #include <iostream>
 #include "utils.h"
 
+// Hyperparameters
 const float RADIUS = 60;
 const float SIGMA = 4;
 const float DBL_SIGMA_SQ = (2 * SIGMA * SIGMA);
 const float MIN_DISTANCE = 60;
 const size_t NUM_ITER = 50;
 const float DIST_TO_REAL = 10;
+
 // Dataset
-const std::string PATH_TO_DATA = "../../datas/1000/random_pts_1k.csv";
-const std::string PATH_TO_CENTROIDS = "../../datas/1000/random_cts_1k.csv";
-const int N = 1000;
 const int D = 2;
 const int M = 3;
+const int N = 500;
+
+const std::string PATH_TO_DATA = "../../../datas/500/points.csv";
+const std::string PATH_TO_CENTROIDS = "../../../datas/500/centroids.csv";
+
+// const std::string PATH_TO_DATA = "../../datas/1000/points.csv";
+// const std::string PATH_TO_CENTROIDS = "../../datas/1000/centroids.csv";
+
+
 // Device
-const int THREADS = 64;
+const int THREADS = 8;
 const int BLOCKS = (N + THREADS - 1) / THREADS;
 const int TILE_WIDTH = THREADS;
 
@@ -50,14 +57,6 @@ __global__ void mean_shift_naive(float *data, float *data_next) {
 
 int main() {
 
-    constexpr auto N = N;
-    constexpr auto D = D;
-    constexpr auto M = M;
-    constexpr auto THREADS = THREADS;
-    constexpr auto BLOCKS = BLOCKS;
-    const auto PATH_TO_DATA = PATH_TO_DATA; 
-    const auto PATH_TO_CENTROIDS = PATH_TO_CENTROIDS;
-    constexpr auto DIST_TO_REAL = DIST_TO_REAL;
 
     utils_ns::print_info(PATH_TO_DATA, N, D, BLOCKS, THREADS);
 

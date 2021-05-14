@@ -4,20 +4,26 @@
 #include "utils.h"
 #include <stdio.h>
 
+// Hyperparameters
 const float RADIUS = 60;
 const float SIGMA = 4;
 const float DBL_SIGMA_SQ = (2 * SIGMA * SIGMA);
 const float MIN_DISTANCE = 60;
 const size_t NUM_ITER = 50;
 const float DIST_TO_REAL = 10;
+
 // Dataset
-const std::string PATH_TO_DATA = "../../datas/1000/points.csv";
-const std::string PATH_TO_CENTROIDS = "../../datas/1000/centroids.csv";
-const int N = 1000;
 const int D = 2;
 const int M = 3;
+const int N = 10000;
+const std::string PATH_TO_DATA = "../../../datas/10000/points.csv";
+const std::string PATH_TO_CENTROIDS = "../../../datas/10000/centroids.csv";
+
+// const std::string PATH_TO_DATA = "../../datas/1000/points.csv";
+// const std::string PATH_TO_CENTROIDS = "../../datas/1000/centroids.csv";
+
 // Device
-const int THREADS = 64;
+const int THREADS = 1024;
 const int BLOCKS = (N + THREADS - 1) / THREADS;
 const int TILE_WIDTH = THREADS;
 

@@ -34,12 +34,14 @@ find_package(CUDA QUIET REQUIRED)
 set(CUDA_SEPARABLE_COMPILATION ON)
 set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
-# CUDA version
+# Shared Version
 add_executable(exec_cuda_sm main.cu)
 target_link_libraries(exec_cuda_sm libTool libSrc -std=c++17)
 set_property(TARGET exec_cuda_sm PROPERTY CXX_STANDARD 17)
 set_property(TARGET exec_cuda_sm PROPERTY CXX_STANDARD_REQUIRED ON)
 
-# OPENMP version
-#add_executable(mm_sharedOpt CUDA/sharedOpt.cu)
-#target_link_libraries(mm_sharedOpt libTool libSrc -lpng -lstdc++fs)
+# Naive Version
+add_executable(exec_cuda_naive main_naive.cu)
+target_link_libraries(exec_cuda_naive libTool -std=c++17)
+set_property(TARGET exec_cuda_naive PROPERTY CXX_STANDARD 17)
+set_property(TARGET exec_cuda_naive PROPERTY CXX_STANDARD_REQUIRED ON)
