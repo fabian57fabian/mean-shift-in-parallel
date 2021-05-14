@@ -15,13 +15,8 @@ const float DIST_TO_REAL = 10;
 const int D = 2;
 const int M = 3;
 const int N = 500;
-
-const std::string PATH_TO_DATA = "../../../datas/500/points.csv";
-const std::string PATH_TO_CENTROIDS = "../../../datas/500/centroids.csv";
-
-// const std::string PATH_TO_DATA = "../../datas/1000/points.csv";
-// const std::string PATH_TO_CENTROIDS = "../../datas/1000/centroids.csv";
-
+const std::string PATH_TO_DATA = "../../datas/500/points.csv";
+const std::string PATH_TO_CENTROIDS = "../../datas/500/centroids.csv";
 
 // Device
 const int THREADS = 8;

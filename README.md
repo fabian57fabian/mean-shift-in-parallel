@@ -73,7 +73,13 @@ In order to run its execution:
 
 ```
 cd CUDA/MS_CUDA
-./run.sh
+./run_naive_version.sh     # First Version implemented
+```
+
+and for optimizated version,
+```
+cd CUDA/MS_CUDA
+./run_shared_version.sh    # Optimized Version
 ```
 
 Inside CUDA/MS_CUDA one can also find a ./build.sh file that creates a bild folder and builds the projects.
