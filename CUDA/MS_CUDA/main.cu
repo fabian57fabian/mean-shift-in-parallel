@@ -11,7 +11,7 @@ const int CONSOLE_WIDTH = 57;
 // Mean shift params
 const float RADIUS = 60;
 const float SIGMA = 4;
-const float DBL_SIGMA_SQ = (2 * SIGMA * SIGMA);
+const float SIGMA_POWER = (2 * SIGMA * SIGMA);
 const float MIN_DISTANCE = 60;
 const size_t NUM_ITER = 50;
 const float EPSILON_CHECK_CENTROIDS = 10;
@@ -38,7 +38,7 @@ __global__ void mean_shift_naive(float *data, float *data_tmp, const int POINTS_
                 sq_dist += (data[row + j] - data[row_n + j]) * (data[row + j] - data[row_n + j]);
             }
             if (sq_dist <= RADIUS) {
-                float weight = expf(-sq_dist / DBL_SIGMA_SQ);
+                float weight = expf(-sq_dist / SIGMA_POWER);
                 for (size_t j = 0; j < D; ++j) {
                     new_position[j] += weight * data[row_n + j];
                 }
@@ -88,7 +88,7 @@ __global__ void mean_shift_tiling(const float* data, float* data_next, const int
                 sq_dist += (data[row + j] - local_data[local_row_tile + j]) * (data[row + j] - local_data[local_row_tile + j]);
             }
             if (sq_dist <= valid_radius) {
-                float weight = expf(-sq_dist / DBL_SIGMA_SQ);
+                float weight = expf(-sq_dist / SIGMA_POWER);
                 for (int j = 0; j < D; ++j) {
                     new_position[j] += (weight * local_data[local_row_tile + j]);
                 }
