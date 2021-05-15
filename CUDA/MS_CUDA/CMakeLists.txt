@@ -35,13 +35,7 @@ set(CUDA_SEPARABLE_COMPILATION ON)
 set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 # Shared Version
-add_executable(exec_cuda_sm main.cu)
-target_link_libraries(exec_cuda_sm libTool libSrc -std=c++17)
-set_property(TARGET exec_cuda_sm PROPERTY CXX_STANDARD 17)
-set_property(TARGET exec_cuda_sm PROPERTY CXX_STANDARD_REQUIRED ON)
-
-# Naive Version
-add_executable(exec_cuda_naive main_naive.cu)
-target_link_libraries(exec_cuda_naive libTool -std=c++17)
-set_property(TARGET exec_cuda_naive PROPERTY CXX_STANDARD 17)
-set_property(TARGET exec_cuda_naive PROPERTY CXX_STANDARD_REQUIRED ON)
+add_executable(exec_mean_shift main.cu)
+target_link_libraries(exec_mean_shift libTool libSrc -std=c++17)
+set_property(TARGET exec_mean_shift PROPERTY CXX_STANDARD 17)
+set_property(TARGET exec_mean_shift PROPERTY CXX_STANDARD_REQUIRED ON)

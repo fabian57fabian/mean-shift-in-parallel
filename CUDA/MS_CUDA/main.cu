@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <iomanip>
 
-//Printing params
+// Printing params
 const int CONSOLE_WIDTH = 57;
 
 // Mean shift params
@@ -19,13 +19,40 @@ const float EPSILON_CHECK_CENTROIDS = 10;
 // Dataset
 const int D = 2;
 const int CENTROIDS_NUMBER = 3;
-const int POINTS_NUMBER = 10000;
+//int POINTS_NUMBER = 100000;
+
 // Device
 const int THREADS = 1024;
-const int BLOCKS = (POINTS_NUMBER + THREADS - 1) / THREADS;
 const int TILE_WIDTH = THREADS;
 
-__global__ void mean_shift_tiling(const float* data, float* data_next) {
+__global__ void mean_shift_naive(float *data, float *data_tmp, const int POINTS_NUMBER) {
+    size_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;
+    if (tid < POINTS_NUMBER) {
+        size_t row = tid * D;
+        float new_position[D] = {0.};
+        float tot_weight = 0.;
+        for (size_t i = 0; i < POINTS_NUMBER; ++i) {
+            size_t row_n = i * D;
+            float sq_dist = 0.;
+            for (size_t j = 0; j < D; ++j) {
+                sq_dist += (data[row + j] - data[row_n + j]) * (data[row + j] - data[row_n + j]);
+            }
+            if (sq_dist <= RADIUS) {
+                float weight = expf(-sq_dist / DBL_SIGMA_SQ);
+                for (size_t j = 0; j < D; ++j) {
+                    new_position[j] += weight * data[row_n + j];
+                }
+                tot_weight += weight;
+            }
+        }
+        for (size_t j = 0; j < D; ++j) {
+            data_tmp[row + j] = new_position[j] / tot_weight;
+        }
+    }
+    return;
+}
+
+__global__ void mean_shift_tiling(const float* data, float* data_next, const int POINTS_NUMBER, const int BLOCKS) {
 
     // Shared memory allocation
     __shared__ float local_data[TILE_WIDTH * D];
@@ -91,8 +118,13 @@ std::string console_log_time(std::string log, const std::chrono::duration<double
     return console_log(log + std::to_string(duration.count()) + "ms");
 }
 
-int main() {
+int execute_mean_shift(const int pn, bool USE_SHARED) {
+    const int POINTS_NUMBER = 1000;
+    const int BLOCKS = (POINTS_NUMBER + THREADS - 1) / THREADS;
+
     // Print useful infos
+    std::cout << separation_line() << std::endl;
+    std::cout << console_log(USE_SHARED?"CUDA MEAN SHIFT: SHARED MEMORY":"CUDA MEAN SHIFT: NAIVE") << std::endl;
     std::cout << separation_line() << std::endl;
     std::cout << "|POINTS_NUMBER\t|BLOCKS\t|THREADS\t|TILE_WIDTH\t|"<<std::endl;
     std::cout << "|" << POINTS_NUMBER << "      \t|" << BLOCKS << "\t|" << THREADS << "      \t|" << TILE_WIDTH << "      \t!"<<std::endl;
@@ -111,10 +143,8 @@ int main() {
     std::cout << console_log("Done") << std::endl;
     std::cout << separation_line() << std::endl;
 
-    float *dev_data;
-    float *dev_data_tmp;
-
     // Allocate GPU memory
+    float *dev_data, *dev_data_tmp;
     size_t data_bytes = POINTS_NUMBER * D * sizeof(float);
     cudaMalloc(&dev_data, data_bytes);
     cudaMalloc(&dev_data_tmp, data_bytes);
@@ -129,21 +159,22 @@ int main() {
 
     // Run mean shift clustering and time the execution
     std::cout << separation_line() << std::endl;
-    std::cout << console_log("Starting mean shift shared memory version") << std::endl;
-    const auto before = std::chrono::system_clock::now();
-    bool orig_inverted = false;
+    std::cout << console_log("Executing mean shift...") << std::endl;
+
+    const auto starting_mean_shift_time = std::chrono::system_clock::now();
     for (size_t i = 0; i < NUM_ITER; ++i) {
-        if (!orig_inverted)
-            mean_shift_tiling<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp);
-        else
-            mean_shift_tiling<<<BLOCKS, THREADS>>>(dev_data_tmp, dev_data);
+        if(USE_SHARED){
+            mean_shift_tiling<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp, POINTS_NUMBER, BLOCKS);
+        }else{
+            mean_shift_naive<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp, POINTS_NUMBER);
+        }
         cudaDeviceSynchronize();
-        orig_inverted = !orig_inverted;
+        utils_ns::swap(dev_data, dev_data_tmp);
     }
-    cudaMemcpy(data.data(), orig_inverted?dev_data_tmp:dev_data, data_bytes, cudaMemcpyDeviceToHost);
+    cudaMemcpy(data.data(), dev_data, data_bytes, cudaMemcpyDeviceToHost);
     const auto centroids = utils_ns::reduce_to_centroids<POINTS_NUMBER, D>(data, MIN_DISTANCE);
-    const std::chrono::duration<double, std::milli> duration_mean_shift = std::chrono::system_clock::now() - before;
-    std::cout << console_log_time("Shared Memory version execution in ", duration_mean_shift) << std::endl;
+    const std::chrono::duration<double, std::milli> duration_mean_shift = std::chrono::system_clock::now() - starting_mean_shift_time;
+    std::cout << console_log_time("Duration: ", duration_mean_shift) << std::endl;
 
     // Copy from GPU and de-allocate
     cudaFree(dev_data);
@@ -175,4 +206,18 @@ int main() {
     std::cout << console_log_time("PROCESS ENDED in ", duration_all) << std::endl;
     std::cout << separation_line() << std::endl;
     return 0;
+}
+
+
+int main(int argc, char *argv[]){
+    if (argc < 1){
+        std::cout << "Error: no datas POINTS_NUMBER given" << std::endl;
+        return 5;
+    }
+    const int POINTS_NUMBER = atoi(argv[1]);
+    const int res1 = execute_mean_shift(POINTS_NUMBER, false);
+    std::cout << std::endl;
+    std::cout << std::endl;
+    const int res2 = execute_mean_shift(POINTS_NUMBER, false);
+    return res1 + res2;
 }
