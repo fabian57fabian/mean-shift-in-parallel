@@ -11,12 +11,12 @@
 
 namespace utils_ns {
 
-    template <const size_t N, const size_t D>
-    std::array<float, N * D> load_csv(const std::string& path, const char delim) {
+    template <const size_t POINTS_NUMBER, const size_t D>
+    std::array<float, POINTS_NUMBER * D> load_csv(const std::string& path, const char delim) {
         std::ifstream file(path);
         std::string line;
-        std::array<float, N * D> data_matrix;
-        for (size_t i = 0; i < N; ++i) {
+        std::array<float, POINTS_NUMBER * D> data_matrix;
+        for (size_t i = 0; i < POINTS_NUMBER; ++i) {
             std::getline(file, line);
             std::stringstream line_stream(line);
             std::string cell;
@@ -29,10 +29,10 @@ namespace utils_ns {
         return data_matrix;
     }
 
-    template <const size_t N, const size_t D>
-    void write_csv(const std::array<float, N * D>& data, const std::string& path, const char delim) {
+    template <const size_t POINTS_NUMBER, const size_t D>
+    void write_csv(const std::array<float, POINTS_NUMBER * D>& data, const std::string& path, const char delim) {
         std::ofstream output(path);
-        for (size_t i = 0; i < N; ++i) {
+        for (size_t i = 0; i < POINTS_NUMBER; ++i) {
             for (size_t j = 0; j < D - 1; ++j)
                 output << data[i * D + j] << delim;
             output << data[i * D + D - 1] << '\n';
@@ -61,13 +61,6 @@ namespace utils_ns {
         return;
     }
 
-    template <typename T, const size_t M>
-    void print_data(const std::array<T, M>& data) {
-        for (const auto& c : data)
-                std::cout << c << '\n';
-        return;
-    }
-
     template <const size_t D>
     void print_data(const std::vector<std::array<float, D>>& data) {
         for (const auto& c : data) {
@@ -75,34 +68,6 @@ namespace utils_ns {
                 std::cout << c[i] << ' ';
             std::cout << '\n';
         }
-        return;
-    }
-
-    void print_info(const std::string PATH_TO_DATA, 
-                    const size_t N, 
-                    const size_t D, 
-                    const size_t BLOCKS,
-                    const size_t THREADS) {
-        std::cout << "\nDATASET:    " << PATH_TO_DATA << '\n';
-        std::cout << "NUM POINTS: " << N << '\n';
-        std::cout << "DIM:        " << D << '\n';
-        std::cout << "BLOCKS:     " <<  BLOCKS << '\n';
-        std::cout << "THREADS:    " << THREADS << '\n';
-        return;
-    }
-
-    void print_info(const std::string PATH_TO_DATA, 
-                    const size_t N, 
-                    const size_t D, 
-                    const size_t BLOCKS,
-                    const size_t THREADS,
-                    const size_t TILE_WIDTH) {
-        std::cout << "\nDATASET:    " << PATH_TO_DATA << '\n';
-        std::cout << "NUM POINTS: " << N << '\n';
-        std::cout << "DIM:        " << D << '\n';
-        std::cout << "BLOCKS:     " <<  BLOCKS << '\n';
-        std::cout << "THREADS:    " << THREADS << '\n';
-        std::cout << "TILE WIDTH: " << TILE_WIDTH << '\n';
         return;
     }
 
