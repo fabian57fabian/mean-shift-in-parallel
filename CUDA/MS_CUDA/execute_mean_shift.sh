@@ -1,1 +1,1 @@
-./build/exec_mean_shift $1
+./build/exec_mean_shift

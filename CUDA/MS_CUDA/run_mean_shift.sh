@@ -1,2 +1,2 @@
 ./build.sh
-./execute_mean_shift.sh $1
+./execute_mean_shift.sh

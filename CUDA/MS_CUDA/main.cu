@@ -19,10 +19,10 @@ const float EPSILON_CHECK_CENTROIDS = 10;
 // Dataset
 const int D = 2;
 const int CENTROIDS_NUMBER = 3;
-//int POINTS_NUMBER = 100000;
+const int POINTS_NUMBER = 10000;
 
 // Device
-const int THREADS = 1024;
+const int THREADS = 512;
 const int TILE_WIDTH = THREADS;
 
 __global__ void mean_shift_naive(float *data, float *data_tmp, const int POINTS_NUMBER) {
@@ -118,8 +118,7 @@ std::string console_log_time(std::string log, const std::chrono::duration<double
     return console_log(log + std::to_string(duration.count()) + "ms");
 }
 
-int execute_mean_shift(const int pn, bool USE_SHARED) {
-    const int POINTS_NUMBER = 1000;
+int execute_mean_shift(bool USE_SHARED) {
     const int BLOCKS = (POINTS_NUMBER + THREADS - 1) / THREADS;
 
     // Print useful infos
@@ -210,14 +209,9 @@ int execute_mean_shift(const int pn, bool USE_SHARED) {
 
 
 int main(int argc, char *argv[]){
-    if (argc < 1){
-        std::cout << "Error: no datas POINTS_NUMBER given" << std::endl;
-        return 5;
-    }
-    const int POINTS_NUMBER = atoi(argv[1]);
-    const int res1 = execute_mean_shift(POINTS_NUMBER, false);
+    const int res1 = execute_mean_shift(false);
     std::cout << std::endl;
     std::cout << std::endl;
-    const int res2 = execute_mean_shift(POINTS_NUMBER, false);
+    const int res2 = execute_mean_shift(true);
     return res1 + res2;
 }
