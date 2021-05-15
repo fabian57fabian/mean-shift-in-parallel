@@ -7,8 +7,8 @@ main_folder = "datas"
 
 
 def gauss_2d(mu, sigmas):
-    x = Decimal(random.gauss(mu[0], sigmas[0]))
-    y = Decimal(random.gauss(mu[1], sigmas[1]))
+    x = random.gauss(mu[0], sigmas[0])
+    y = random.gauss(mu[1], sigmas[1])
     return [x, y]
 
 
@@ -21,16 +21,18 @@ def generate_dataset(N, centroids, sigmas):
     if not os.path.exists(folder):
         os.makedirs(folder)
     with open(os.path.join(folder, 'centroids.csv'), 'w') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',')
-        [writer.writerow([float(c[0]),float(c[1])]) for c in centroids]
+        writer = csv.writer(csvfile, delimiter='\t')
+        [writer.writerow(list_to_decimal(c)) for c in centroids]
     with open(os.path.join(folder, 'points.csv'), 'w') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',')
+        writer = csv.writer(csvfile, delimiter='\t')
         for _ in range(N):
-            writer.writerow(gauss_2d(random_item(centroids), random_item(sigmas)))
+            writer.writerow(list_to_decimal(gauss_2d(random_item(centroids), random_item(sigmas))))
 
+def list_to_decimal(l):
+    return ["{:2e}".format(f) for f in l]
 
 if __name__ == "__main__":
-    centroids = [[1., 9.], [9., 1.], [10., 9.]]
+    centroids = [[10, 10], [0, 0], [-10, 10]]
     sigmas = [[1, 1.5] for _ in centroids]
     for N in [500, 1000, 2000, 5000, 10000]:
         generate_dataset(N, centroids, sigmas)
