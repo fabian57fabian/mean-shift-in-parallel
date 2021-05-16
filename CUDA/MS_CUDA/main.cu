@@ -62,10 +62,11 @@ __global__ void mean_shift_tiling(const float* data, float* data_next, const int
     float new_position[2] = {0.};
     float tot_weight = 0.;
     // Load data in shared memory
+    int tid_in_tile, row_in_tile;
     for (int t = 0; t < BLOCKS; ++t) {
-        int tid_in_tile = t * TILE_WIDTH + threadIdx.x;
+        tid_in_tile = t * TILE_WIDTH + threadIdx.x;
         if (tid_in_tile < POINTS_NUMBER) {
-            int row_in_tile = tid_in_tile * 2; //DIM=2 so *2
+            row_in_tile = tid_in_tile * 2; //DIM=2 so *2
 
             local_data[local_row] = data[row_in_tile];//D=0
             local_data[local_row + 1] = data[row_in_tile + 1];//D=1
@@ -77,16 +78,18 @@ __global__ void mean_shift_tiling(const float* data, float* data_next, const int
             valid_data[threadIdx.x] = 0;
         }
         __syncthreads();
+        int local_row_tile;
+        float valid_radius, sq_dist, weight;
         for (int i = 0; i < TILE_WIDTH; ++i) {
-            int local_row_tile = i * 2; //DIM=2 so *2
-            float valid_radius = RADIUS * valid_data[i];
-            float sq_dist = 0.;
+            local_row_tile = i * 2; //DIM=2 so *2
+            valid_radius = RADIUS * valid_data[i];
+            sq_dist = 0.;
 
             sq_dist += (data[row] - local_data[local_row_tile]) * (data[row] - local_data[local_row_tile]) 
             + (data[row + 1] - local_data[local_row_tile + 1]) * (data[row + 1] - local_data[local_row_tile + 1]);
 
             if (sq_dist <= valid_radius) {
-                float weight = expf(-sq_dist / SIGMA_POWER);
+                weight = expf(-sq_dist / SIGMA_POWER);
                 new_position[0] += (weight * local_data[local_row_tile]);
                 new_position[1] += (weight * local_data[local_row_tile + 1]);
                 tot_weight += (weight * valid_data[i]);
