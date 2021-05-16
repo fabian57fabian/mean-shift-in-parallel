@@ -17,7 +17,6 @@ const size_t NUM_ITER = 50;
 const float EPSILON_CHECK_CENTROIDS = 10;
 
 // Dataset
-const int D = 2;
 const int CENTROIDS_NUMBER = 3;
 const int POINTS_NUMBER = 10000;
 
@@ -28,26 +27,25 @@ const int TILE_WIDTH = THREADS;
 __global__ void mean_shift_naive(float *data, float *data_tmp, const int POINTS_NUMBER) {
     size_t tid = (blockIdx.x * blockDim.x) + threadIdx.x;
     if (tid < POINTS_NUMBER) {
-        size_t row = tid * D;
-        float new_position[D] = {0.};
+        size_t row = tid * 2; //DIM=2 so *2
+        float new_position[2] = {0.}; //DIM=2 so 2
         float tot_weight = 0.;
         for (size_t i = 0; i < POINTS_NUMBER; ++i) {
-            size_t row_n = i * D;
+            size_t row_n = i * 2; //DIM=2 so *2
             float sq_dist = 0.;
-            for (size_t j = 0; j < D; ++j) {
-                sq_dist += (data[row + j] - data[row_n + j]) * (data[row + j] - data[row_n + j]);
-            }
+
+            sq_dist += (data[row] - data[row_n]) * (data[row] - data[row_n]) 
+            + (data[row + 1] - data[row_n + 1]) * (data[row + 1] - data[row_n + 1]);
+
             if (sq_dist <= RADIUS) {
                 float weight = expf(-sq_dist / SIGMA_POWER);
-                for (size_t j = 0; j < D; ++j) {
-                    new_position[j] += weight * data[row_n + j];
-                }
+                new_position[0] += weight * data[row_n];//D=0
+                new_position[1] += weight * data[row_n + 1];//D=1
                 tot_weight += weight;
             }
         }
-        for (size_t j = 0; j < D; ++j) {
-            data_tmp[row + j] = new_position[j] / tot_weight;
-        }
+        data_tmp[row] = new_position[0] / tot_weight;//D=0
+        data_tmp[row + 1] = new_position[1] / tot_weight;//D=1
     }
     return;
 }
@@ -55,52 +53,50 @@ __global__ void mean_shift_naive(float *data, float *data_tmp, const int POINTS_
 __global__ void mean_shift_tiling(const float* data, float* data_next, const int POINTS_NUMBER, const int BLOCKS) {
 
     // Shared memory allocation
-    __shared__ float local_data[TILE_WIDTH * D];
+    __shared__ float local_data[TILE_WIDTH * 2]; //DIM=2 so *2
     __shared__ float valid_data[TILE_WIDTH];
     // A few convenient variables
     int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
-    int row = tid * D;
-    int local_row = threadIdx.x * D;
-    float new_position[D] = {0.};
+    int row = tid * 2; //DIM=2 so *2
+    int local_row = threadIdx.x * 2; //DIM=2 so *2
+    float new_position[2] = {0.};
     float tot_weight = 0.;
     // Load data in shared memory
     for (int t = 0; t < BLOCKS; ++t) {
         int tid_in_tile = t * TILE_WIDTH + threadIdx.x;
         if (tid_in_tile < POINTS_NUMBER) {
-            int row_in_tile = tid_in_tile * D;
-            for (int j = 0; j < D; ++j) {
-                local_data[local_row + j] = data[row_in_tile + j];
-            }
+            int row_in_tile = tid_in_tile * 2; //DIM=2 so *2
+
+            local_data[local_row] = data[row_in_tile];//D=0
+            local_data[local_row + 1] = data[row_in_tile + 1];//D=1
             valid_data[threadIdx.x] = 1;
         }
         else {
-            for (int j = 0; j < D; ++j) {
-                local_data[local_row + j] = 0;
-                valid_data[threadIdx.x] = 0;
-            }
+            local_data[local_row] = 0;//D=0
+            local_data[local_row + 1] = 0;//D=1
+            valid_data[threadIdx.x] = 0;
         }
         __syncthreads();
         for (int i = 0; i < TILE_WIDTH; ++i) {
-            int local_row_tile = i * D;
+            int local_row_tile = i * 2; //DIM=2 so *2
             float valid_radius = RADIUS * valid_data[i];
             float sq_dist = 0.;
-            for (int j = 0; j < D; ++j) {
-                sq_dist += (data[row + j] - local_data[local_row_tile + j]) * (data[row + j] - local_data[local_row_tile + j]);
-            }
+
+            sq_dist += (data[row] - local_data[local_row_tile]) * (data[row] - local_data[local_row_tile]) 
+            + (data[row + 1] - local_data[local_row_tile + 1]) * (data[row + 1] - local_data[local_row_tile + 1]);
+
             if (sq_dist <= valid_radius) {
                 float weight = expf(-sq_dist / SIGMA_POWER);
-                for (int j = 0; j < D; ++j) {
-                    new_position[j] += (weight * local_data[local_row_tile + j]);
-                }
+                new_position[0] += (weight * local_data[local_row_tile]);
+                new_position[1] += (weight * local_data[local_row_tile + 1]);
                 tot_weight += (weight * valid_data[i]);
             }
         }
         __syncthreads();
     }
     if (tid < POINTS_NUMBER) {
-        for (int j = 0; j < D; ++j) {
-            data_next[row + j] = new_position[j] / tot_weight;
-        }
+        data_next[row] = new_position[0] / tot_weight;
+        data_next[row + 1] = new_position[1] / tot_weight;
     }
     return;
 }
@@ -119,6 +115,7 @@ std::string console_log_time(std::string log, const std::chrono::duration<double
 }
 
 int execute_mean_shift(bool USE_SHARED) {
+    const int D = 2;
     const int BLOCKS = (POINTS_NUMBER + THREADS - 1) / THREADS;
 
     // Print useful infos
