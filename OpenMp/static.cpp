@@ -12,7 +12,7 @@ const double eps = 10;
 
 // Datas
 const size_t num_points = 10000;
-const size_t dim = 2;
+const size_t dim = 2;  // only 2D
 const std::string data_path = "../../datas/10000/points.csv";
 const std::string centroids_path = "../../datas/10000/centroids.csv";
 

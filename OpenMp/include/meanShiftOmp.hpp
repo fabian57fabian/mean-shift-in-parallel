@@ -19,7 +19,7 @@ namespace ms
             {
                 const float double_sqr_bdw = 2 * bandwidth * bandwidth;
                 utils::mat<T, N, D> new_data;
-                for (size_t i = 0; i < niter; ++i)
+                for (size_t i = 0; i < niter; ++i) // number_iterations
                 {
                     #pragma omp parallel for default(none) shared(data, niter, bandwidth, radius, double_sqr_bdw, new_data) schedule(static) num_threads(num_threads)
                     for (size_t p = 0; p < N; ++p)
@@ -32,14 +32,19 @@ namespace ms
                             if (dist <= radius)
                             {
                                 float gaussian = std::exp(-dist / double_sqr_bdw);
-                                // new_position = new_position + data[q] * gaussian;
-                                new_position = utils::op::operator+(new_position, utils::op::operator*(data[q], gaussian));
+                                new_position = new_position + data[q] * gaussian;
+                                // new_position = utils::op::operator+(new_position, utils::op::operator*(data[q], gaussian));
                                 sum_weights += gaussian;
                             }
                         }
                         
-                        #pragma omp critical
+                        /*
+                         * Diversi thread scrivono in diverse posizioni di
+                         * memoria. Come buona pratica, lo tengo? 
+                        */
+                        #pragma omp critical [compute_m]
                         new_data[p] = utils::op::operator/(new_position, sum_weights);
+                        // new_data[p] = new_position/sum_weights;
                     }
                     data = new_data;
                 }
