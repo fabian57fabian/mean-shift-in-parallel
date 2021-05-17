@@ -30,17 +30,19 @@ __global__ void compute_weights_naive_kernel(float *data, float *data_tmp, const
     int y = x + 1;
     if (tid < POINTS_NUMBER) {
         float new_position[2] = {0.}; //DIM=2 so 2
-        float tot_weight = 0.;
+        float tot_weight = 0., sq_dist=0.;
+        int xloop, yloop;
+        float weight;
         for (int i = 0; i < POINTS_NUMBER; ++i) {
-            int xloop = i * 2; //DIM=2 so *2
-            int yloop = xloop + 1;
-            float sq_dist = 0.;
+            xloop = i * 2; //DIM=2 so *2
+            yloop = xloop + 1;
+            sq_dist = 0.;
 
             sq_dist += (data[x] - data[xloop]) * (data[x] - data[xloop]) 
             + (data[y] - data[yloop]) * (data[y] - data[yloop]);
 
             if (sq_dist <= RADIUS) {
-                float weight = expf(-sq_dist / SIGMA_POWER);
+                weight = expf(-sq_dist / SIGMA_POWER);
                 new_position[0] += weight * data[xloop];
                 new_position[1] += weight * data[yloop];
                 tot_weight += weight;
