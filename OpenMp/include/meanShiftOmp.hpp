@@ -35,19 +35,11 @@ namespace ms
                             if (distance <= radius)
                             {
                                 float gaussian = std::exp(-distance / double_sqr_bdw);
-                                new_position = new_position + data[q] * gaussian;
-                                // new_position = utils::op::operator+(new_position, utils::op::operator*(data[q], gaussian));
+                                new_position = utils::op::operator+(new_position, utils::op::operator*(data[q], gaussian));
                                 sum_weights += gaussian;
                             }
                         }
-                        
-                        /*
-                         * Diversi thread scrivono in diverse posizioni di
-                         * memoria. Come buona pratica, lo tengo? 
-                        */
-                        #pragma omp critical [compute_m]
-                        new_data[p] = new_position/sum_weights;
-                        // new_data[p] = utils::op::operator/(new_position, sum_weights);
+                        new_data[p] = utils::op::operator/(new_position, sum_weights);
                     }
                     data = new_data;
                 }
@@ -79,15 +71,11 @@ namespace ms
                             if (dist <= radius)
                             {
                                 float gaussian = std::exp(-dist / double_sqr_bdw);
-                                new_position = new_position + data[q] * gaussian;
-                                // new_position = utils::op::operator+(new_position, utils::op::operator*(data[q], gaussian));
+                                new_position = utils::op::operator+(new_position, utils::op::operator*(data[q], gaussian));
                                 sum_weights += gaussian;
                             }
                         }
-                        
-                        #pragma omp critical [compute_m]
-                        new_data[p] = new_position/sum_weights;
-                        // new_data[p] = utils::op::operator/(new_position, sum_weights);   
+                        new_data[p] = utils::op::operator/(new_position, sum_weights);   
                     }
                     data = new_data;
                 }
