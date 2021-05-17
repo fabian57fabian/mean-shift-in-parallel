@@ -98,7 +98,7 @@ namespace utils_ns {
                     at_least_one_close = true;
                 }
             }
-            if (not at_least_one_close) {
+            if (!at_least_one_close) {
                 std::array<float, D> centroid;
                 for (size_t j = 0; j < D; ++j) {
                     centroid[j] = data[i * D + j];
