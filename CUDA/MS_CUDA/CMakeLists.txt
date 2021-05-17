@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(TOOL_FILES
     utils.h
     utils.cpp
+    thread_settings.h
 )
 
 set(SRC_FILES

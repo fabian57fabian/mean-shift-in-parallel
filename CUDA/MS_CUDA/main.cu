@@ -2,6 +2,7 @@
 #include <cuda.h>
 #include <iostream>
 #include "utils.h"
+#include "thread_settings.h"
 #include <stdio.h>
 #include <iomanip>
 #include <array>
@@ -24,8 +25,10 @@ const int CENTROIDS_NUMBER = 3;
 const int POINTS_NUMBER = 10000;
 
 // Device
-const int THREADS = 128;
+const int THREADS = threads_settings::THREADS;
 const int TILE_WIDTH = THREADS;
+const int D = 2;
+const int BLOCKS = (POINTS_NUMBER + THREADS - 1) / THREADS;
 
 // Kernel for naive version of weights computation.
 __global__ void compute_weights_naive_kernel(float *data, float *data_tmp, const int POINTS_NUMBER) {
@@ -185,8 +188,6 @@ bool are_close_to_real(const std::vector<std::array<float, D>>& centroids,
 }
 
 int execute_mean_shift(bool USE_SHARED) {
-    const int D = 2;
-    const int BLOCKS = (POINTS_NUMBER + THREADS - 1) / THREADS;
 
     // Print useful infos
     std::cout << separation_line() << std::endl;
