@@ -20,6 +20,7 @@ const float BANDWIDTH = (2 * SIGMA * SIGMA);
 const float MIN_DISTANCE = 60;
 const size_t NUM_ITER = 50;
 const float EPSILON_CHECK_CENTROIDS = 10;
+const bool CHECK_RIGHT_CENTROIDS = true;
 
 // Dataset
 const int CENTROIDS_NUMBER = 3;
@@ -250,30 +251,31 @@ int execute_mean_shift(bool USE_SHARED, bool DEBUG) {
     // Copy from GPU and de-allocate
     cudaFree(dev_data);
     cudaFree(dev_data_tmp);
-    if (DEBUG){
-        std::cout << separation_line() << std::endl;
-        std::cout << console_log("Centroids found:") << std::endl;
-        for (const auto& c : centroids) {
-            std::string xy = std::to_string(c[0]) + ", " + std::to_string(c[1]);
-            std::cout << console_log(xy) << std::endl;
+    if (CHECK_RIGHT_CENTROIDS){
+        if (DEBUG){
+            std::cout << separation_line() << std::endl;
+            std::cout << console_log("Centroids found:") << std::endl;
+            for (const auto& c : centroids) {
+                std::string xy = std::to_string(c[0]) + ", " + std::to_string(c[1]);
+                std::cout << console_log(xy) << std::endl;
+            }
+            std::cout << separation_line() << std::endl;
         }
-        std::cout << separation_line() << std::endl;
-    }
 
-    // Check if correct number
-    if (centroids.size() != CENTROIDS_NUMBER){
-        std::cout << console_log("ERROR: resulting centroids number are different from originals!") << std::endl;
-        return 1;
-    }
+        // Check if correct number
+        if (centroids.size() != CENTROIDS_NUMBER){
+            std::cout << console_log("ERROR: resulting centroids number are different from originals!") << std::endl;
+            return 1;
+        }
 
-    // Check if these centroids are sufficiently close to real ones
-    const std::array<float, CENTROIDS_NUMBER * D> real = utils_ns::load_csv<CENTROIDS_NUMBER, D>(PATH_TO_CENTROIDS, ',');
-    const bool are_close = are_close_to_real<CENTROIDS_NUMBER, D>(centroids, real, EPSILON_CHECK_CENTROIDS);
-    if (!are_close_to_real<CENTROIDS_NUMBER, D>(centroids, real, EPSILON_CHECK_CENTROIDS)){
-        std::cout << console_log("ERROR: resulting centroids are too different from originals!") << std::endl;
-        return 2;
+        // Check if these centroids are sufficiently close to real ones
+        const std::array<float, CENTROIDS_NUMBER * D> real = utils_ns::load_csv<CENTROIDS_NUMBER, D>(PATH_TO_CENTROIDS, ',');
+        const bool are_close = are_close_to_real<CENTROIDS_NUMBER, D>(centroids, real, EPSILON_CHECK_CENTROIDS);
+        if (!are_close_to_real<CENTROIDS_NUMBER, D>(centroids, real, EPSILON_CHECK_CENTROIDS)){
+            std::cout << console_log("ERROR: resulting centroids are too different from originals!") << std::endl;
+            return 2;
+        }
     }
-
     // Show execution time
     const std::chrono::duration<double, std::milli> duration_all = std::chrono::system_clock::now() - start_prog;
     if (DEBUG) std::cout << console_log_time("PROCESS ENDED in ", duration_all) << std::endl;
