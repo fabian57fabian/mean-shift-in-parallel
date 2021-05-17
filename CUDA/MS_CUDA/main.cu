@@ -24,7 +24,7 @@ const int POINTS_NUMBER = 10000;
 const int THREADS = 512;
 const int TILE_WIDTH = THREADS;
 
-__global__ void mean_shift_naive(float *data, float *data_tmp, const int POINTS_NUMBER) {
+__global__ void compute_weights_naive_kernel(float *data, float *data_tmp, const int POINTS_NUMBER) {
     int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
     int x = tid * 2; //DIM=2 so *2
     int y = x + 1;
@@ -52,12 +52,12 @@ __global__ void mean_shift_naive(float *data, float *data_tmp, const int POINTS_
     return;
 }
 
-__global__ void mean_shift_tiling(const float* data, float* data_next, const int POINTS_NUMBER, const int BLOCKS) {
+__global__ void compute_weights_shared_mem_kernel(const float* data, float* data_next, const int POINTS_NUMBER, const int BLOCKS) {
 
     // Shared memory allocation
     __shared__ float local_data[TILE_WIDTH * 2]; // Keeps current x,y locations for shared memory DIM=2 so *2
     __shared__ float flag_data[TILE_WIDTH];      // Keeps track of used data (0 if has data, o otherwise)
-    // A few convenient variables
+
     int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
     int x = tid * 2; //DIM=2 so *2
     int y = x + 1;
@@ -65,7 +65,8 @@ __global__ void mean_shift_tiling(const float* data, float* data_next, const int
     int y_local = x_local + 1;
     float new_position[2] = {0.};
     float tot_weight = 0.;
-    int tid_in_tile, x_in_tile;
+
+    int tid_in_tile, x_in_tile, y_in_tile;
     for (int t = 0; t < BLOCKS; ++t) {
 		// Load data in shared memory
         tid_in_tile = t * TILE_WIDTH + threadIdx.x;
@@ -103,6 +104,7 @@ __global__ void mean_shift_tiling(const float* data, float* data_next, const int
         }
         __syncthreads();
     }
+    // Set datas for next iteration
     if (tid < POINTS_NUMBER) {
         data_next[x] = new_position[0] / tot_weight;
         data_next[y] = new_position[1] / tot_weight;
@@ -131,8 +133,8 @@ int execute_mean_shift(bool USE_SHARED) {
     std::cout << separation_line() << std::endl;
     std::cout << console_log(USE_SHARED?"CUDA MEAN SHIFT: SHARED MEMORY":"CUDA MEAN SHIFT: NAIVE") << std::endl;
     std::cout << separation_line() << std::endl;
-    std::cout << "|POINTS_NUMBER\t|BLOCKS\t|THREADS\t|TILE_WIDTH\t|"<<std::endl;
-    std::cout << "|" << POINTS_NUMBER << "      \t|" << BLOCKS << "\t|" << THREADS << "      \t|" << TILE_WIDTH << "      \t!"<<std::endl;
+    std::cout << "|POINTS_NUMBER\t|BLOCKS\t|THREADS\t|" << (USE_SHARED?"TILE_WIDTH":"         ") << "\t|"<<std::endl;
+    std::cout << "|" << POINTS_NUMBER << "      \t|" << BLOCKS << "\t|" << THREADS << "      \t|" << (USE_SHARED?std::to_string(TILE_WIDTH):"    ") << "      \t!"<<std::endl;
     std::cout << separation_line() << std::endl;
 
     //Compute paths
@@ -169,9 +171,9 @@ int execute_mean_shift(bool USE_SHARED) {
     const auto starting_mean_shift_time = std::chrono::system_clock::now();
     for (size_t i = 0; i < NUM_ITER; ++i) {
         if(USE_SHARED){
-            mean_shift_tiling<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp, POINTS_NUMBER, BLOCKS);
+            compute_weights_shared_mem_kernel<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp, POINTS_NUMBER, BLOCKS);
         }else{
-            mean_shift_naive<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp, POINTS_NUMBER);
+            compute_weights_naive_kernel<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp, POINTS_NUMBER);
         }
         cudaDeviceSynchronize();
         utils_ns::swap(dev_data, dev_data_tmp);
