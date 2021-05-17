@@ -141,9 +141,8 @@ std::vector<std::array<float, D>> reduce_to_centroids(std::array<float, N * D>& 
     std::vector<std::array<float, D>> centroids;
     centroids.reserve(4);
     std::array<float, D> first_centroid;
-    for (size_t j = 0; j < D; ++j) {
-        first_centroid[j] = data[j];
-    }
+    first_centroid[0] = data[0];
+    first_centroid[1] = data[1];
     centroids.emplace_back(first_centroid);
     for (size_t i = 0; i < N; ++i) {
         bool at_least_one_close = false;
@@ -158,9 +157,8 @@ std::vector<std::array<float, D>> reduce_to_centroids(std::array<float, N * D>& 
         }
         if (!at_least_one_close) {
             std::array<float, D> centroid;
-            for (size_t j = 0; j < D; ++j) {
-                centroid[j] = data[i * D + j];
-            }
+            centroid[0] = data[i * D];
+            centroid[1] = data[i * D + 1];
             centroids.emplace_back(centroid);
         }
     }
