@@ -10,9 +10,9 @@ Mean shift [algorithm](https://en.wikipedia.org/wiki/Mean_shift) implemented in 
 ```bash 
 ├── datas
 │   ├── 1000            # folder with 1000 points and 3 centroids
-│   │   ├── random_pts_1k.csv # points dataset
-│   │   ├── random_cts_1k.csv # centroids dataset
-|   ├── ...
+│   │   ├── points.csv # points dataset
+│   │   ├── centroids.csv # centroids dataset
+│   ├── ...  
 ├── CUDA           
 │   ├── DockerFile           # Docker manaer file
 │   ├── docker-compose.yaml  # Docker compose file
@@ -20,9 +20,10 @@ Mean shift [algorithm](https://en.wikipedia.org/wiki/Mean_shift) implemented in 
 │   │   ├── CMakeLists.txt        # C make file
 │   │   ├── ...                   # libs and headers
 │   │   ├── main.cu               # main CUDA source file
+│   │   ├── utils.h               # utility file
 │   │   ├── build.sh              # builds the MS_CUDA project
-│   │   ├── execute.sh            # executes the shared memory file
-│   │   ├── run.sh                # builds + executes
+│   │   ├── execute_mean_shift.sh            # executes the mean shift algo (naive and shared versions)
+│   │   ├── run_mean_shift.sh                # builds + executes
 ├── Sequential            # handled by @AngeloDamante
 │   ├── CMakeLists.txt        # C make file
 │   ├── main.cpp              # main sequential source file
@@ -73,16 +74,14 @@ In order to run its execution:
 
 ```
 cd CUDA/MS_CUDA
-./run_naive_version.sh     # First Version implemented
+./run_mean_shift.sh     # First Version implemented
 ```
 
-and for optimizated version,
-```
-cd CUDA/MS_CUDA
-./run_shared_version.sh    # Optimized Version
-```
+It will run the naive and the shared memory versions.
 
 Inside CUDA/MS_CUDA one can also find a ./build.sh file that creates a bild folder and builds the projects.
+
+IF you already runned or build it, you can call the execute bash script.
 
 ## Authors
 + <a href="https://github.com/AngeloDamante"> Angelo D'Amante </a>
