@@ -11,9 +11,6 @@
 #include <sstream>
 #include <vector>
 
-// Printing params
-const int CONSOLE_WIDTH = 57;
-
 // Mean shift params
 const float RADIUS = 60;
 const float SIGMA = 4;
@@ -30,6 +27,7 @@ const int POINTS_NUMBER = 10000;
 const int THREADS = 128;
 const int TILE_WIDTH = THREADS;
 
+// Kernel for naive version of weights computation.
 __global__ void compute_weights_naive_kernel(float *data, float *data_tmp, const int POINTS_NUMBER) {
     int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
     int x = tid * 2; //DIM=2 so *2
@@ -60,6 +58,7 @@ __global__ void compute_weights_naive_kernel(float *data, float *data_tmp, const
     return;
 }
 
+// Kernel for shared memory tiling version of weights computation
 __global__ void compute_weights_shared_mem_kernel(const float* data, float* data_next, const int POINTS_NUMBER, const int BLOCKS) {
 
     // Shared memory allocation
@@ -120,6 +119,9 @@ __global__ void compute_weights_shared_mem_kernel(const float* data, float* data
     return;
 }
 
+
+// Functions for console printing
+#define CONSOLE_WIDTH 57
 std::string separation_line(){
     return std::string(CONSOLE_WIDTH, '-');
 }
@@ -132,7 +134,7 @@ std::string console_log(std::string log){
 std::string console_log_time(std::string log, const std::chrono::duration<double, std::milli> duration){
     return console_log(log + std::to_string(duration.count()) + "ms");
 }
-
+// End functions for console printing
 
 template <const size_t N, const size_t D>
 std::vector<std::array<float, D>> reduce_to_centroids(std::array<float, N * D>& data, const float min_distance) {
@@ -228,6 +230,7 @@ int execute_mean_shift(bool USE_SHARED) {
     std::cout << console_log("Executing mean shift...") << std::endl;
 
     const auto starting_mean_shift_time = std::chrono::system_clock::now();
+    float *temp_data;
     for (size_t i = 0; i < NUM_ITER; ++i) {
         if(USE_SHARED){
             compute_weights_shared_mem_kernel<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp, POINTS_NUMBER, BLOCKS);
@@ -235,7 +238,9 @@ int execute_mean_shift(bool USE_SHARED) {
             compute_weights_naive_kernel<<<BLOCKS, THREADS>>>(dev_data, dev_data_tmp, POINTS_NUMBER);
         }
         cudaDeviceSynchronize();
-        utils_ns::swap(dev_data, dev_data_tmp);
+        temp_data = dev_data;
+        dev_data = dev_data_tmp;
+        dev_data_tmp = temp_data;
     }
     cudaMemcpy(data.data(), dev_data, data_bytes, cudaMemcpyDeviceToHost);
     const auto centroids = reduce_to_centroids<POINTS_NUMBER, D>(data, MIN_DISTANCE);
