@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <cstring>
 
 // Mean shift params
 const float RADIUS = 60;
@@ -22,7 +23,7 @@ const float EPSILON_CHECK_CENTROIDS = 10;
 
 // Dataset
 const int CENTROIDS_NUMBER = 3;
-const int POINTS_NUMBER = 10000;
+const int POINTS_NUMBER = threads_settings::POINTS_NUMBER;
 
 // Device
 const int THREADS = threads_settings::THREADS;
@@ -187,15 +188,15 @@ bool are_close_to_real(const std::vector<std::array<float, D>>& centroids,
     return std::all_of(are_close.begin(), are_close.end(), [](const bool b){return b;}); 
 }
 
-int execute_mean_shift(bool USE_SHARED) {
+int execute_mean_shift(bool USE_SHARED, bool DEBUG) {
 
     // Print useful infos
-    std::cout << separation_line() << std::endl;
-    std::cout << console_log(USE_SHARED?"CUDA MEAN SHIFT: SHARED MEMORY":"CUDA MEAN SHIFT: NAIVE") << std::endl;
-    std::cout << separation_line() << std::endl;
-    std::cout << "|POINTS_NUMBER\t|BLOCKS\t|THREADS\t|" << (USE_SHARED?"TILE_WIDTH":"         ") << "\t|"<<std::endl;
-    std::cout << "|" << POINTS_NUMBER << "      \t|" << BLOCKS << "\t|" << THREADS << "      \t|" << (USE_SHARED?std::to_string(TILE_WIDTH):"    ") << "      \t!"<<std::endl;
-    std::cout << separation_line() << std::endl;
+    if (DEBUG) std::cout << separation_line() << std::endl;
+    if (DEBUG) std::cout << console_log(USE_SHARED?"CUDA MEAN SHIFT: SHARED MEMORY":"CUDA MEAN SHIFT: NAIVE") << std::endl;
+    if (DEBUG) std::cout << separation_line() << std::endl;
+    if (DEBUG) std::cout << "|POINTS_NUMBER\t|BLOCKS\t|THREADS\t|" << (USE_SHARED?"TILE_WIDTH":"         ") << "\t|"<<std::endl;
+    if (DEBUG) std::cout << "|" << POINTS_NUMBER << "      \t|" << BLOCKS << "\t|" << THREADS << "      \t|" << (USE_SHARED?std::to_string(TILE_WIDTH):"    ") << "      \t!"<<std::endl;
+    if (DEBUG) std::cout << separation_line() << std::endl;
 
     //Compute paths
     const std::string PATH_TO_DATA = "../../datas/"+std::to_string(POINTS_NUMBER)+"/points.csv";
@@ -204,11 +205,11 @@ int execute_mean_shift(bool USE_SHARED) {
     const auto start_prog = std::chrono::system_clock::now();
 
     // Load data
-    std::cout << console_log("Loading csv...") << std::endl;
+    if (DEBUG) std::cout << console_log("Loading csv...") << std::endl;
     std::array<float, POINTS_NUMBER * D> data = utils_ns::load_csv<POINTS_NUMBER, D>(PATH_TO_DATA, ',');
     std::array<float, POINTS_NUMBER * D> data_next {};
-    std::cout << console_log("Done") << std::endl;
-    std::cout << separation_line() << std::endl;
+    if (DEBUG) std::cout << console_log("Done") << std::endl;
+    if (DEBUG) std::cout << separation_line() << std::endl;
 
     // Allocate GPU memory
     float *dev_data, *dev_data_tmp;
@@ -221,12 +222,12 @@ int execute_mean_shift(bool USE_SHARED) {
     cudaMemcpy(dev_data, data.data(), data_bytes, cudaMemcpyHostToDevice);
     cudaMemcpy(dev_data_tmp, data_next.data(), data_bytes, cudaMemcpyHostToDevice);
     const std::chrono::duration<double, std::milli> duration_memcp = std::chrono::system_clock::now() - start_memcp;
-    std::cout << console_log_time("Ended memcopy in ", duration_memcp) << std::endl;
+    if (DEBUG) std::cout << console_log_time("Ended memcopy in ", duration_memcp) << std::endl;
 
 
     // Run mean shift clustering and time the execution
-    std::cout << separation_line() << std::endl;
-    std::cout << console_log("Executing mean shift...") << std::endl;
+    if (DEBUG) std::cout << separation_line() << std::endl;
+    if (DEBUG) std::cout << console_log("Executing mean shift...") << std::endl;
 
     const auto starting_mean_shift_time = std::chrono::system_clock::now();
     float *temp_data;
@@ -244,18 +245,20 @@ int execute_mean_shift(bool USE_SHARED) {
     cudaMemcpy(data.data(), dev_data, data_bytes, cudaMemcpyDeviceToHost);
     const auto centroids = reduce_to_centroids<POINTS_NUMBER, D>(data, MIN_DISTANCE);
     const std::chrono::duration<double, std::milli> duration_mean_shift = std::chrono::system_clock::now() - starting_mean_shift_time;
-    std::cout << console_log_time("Duration: ", duration_mean_shift) << std::endl;
+    if (DEBUG) std::cout << console_log_time("Duration: ", duration_mean_shift) << std::endl; else std::cout << duration_mean_shift.count() << std::endl;
 
     // Copy from GPU and de-allocate
     cudaFree(dev_data);
     cudaFree(dev_data_tmp);
-    std::cout << separation_line() << std::endl;
-    std::cout << console_log("Centroids found:") << std::endl;
-    for (const auto& c : centroids) {
-        std::string xy = std::to_string(c[0]) + ", " + std::to_string(c[1]);
-        std::cout << console_log(xy) << std::endl;
+    if (DEBUG){
+        std::cout << separation_line() << std::endl;
+        std::cout << console_log("Centroids found:") << std::endl;
+        for (const auto& c : centroids) {
+            std::string xy = std::to_string(c[0]) + ", " + std::to_string(c[1]);
+            std::cout << console_log(xy) << std::endl;
+        }
+        std::cout << separation_line() << std::endl;
     }
-    std::cout << separation_line() << std::endl;
 
     // Check if correct number
     if (centroids.size() != CENTROIDS_NUMBER){
@@ -273,16 +276,18 @@ int execute_mean_shift(bool USE_SHARED) {
 
     // Show execution time
     const std::chrono::duration<double, std::milli> duration_all = std::chrono::system_clock::now() - start_prog;
-    std::cout << console_log_time("PROCESS ENDED in ", duration_all) << std::endl;
-    std::cout << separation_line() << std::endl;
+    if (DEBUG) std::cout << console_log_time("PROCESS ENDED in ", duration_all) << std::endl;
+    if (DEBUG) std::cout << separation_line() << std::endl;
     return 0;
 }
 
 
 int main(int argc, char *argv[]){
-    const int res1 = execute_mean_shift(false);
-    std::cout << std::endl;
-    std::cout << std::endl;
-    const int res2 = execute_mean_shift(true);
+    bool INFO = false;
+    if(argc>1){
+        INFO = strcmp( argv[1], "info") == 0;
+    }
+    const int res1 = execute_mean_shift(false, !INFO);
+    const int res2 = execute_mean_shift(true, !INFO);
     return res1 + res2;
 }

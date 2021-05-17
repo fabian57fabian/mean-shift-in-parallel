@@ -82,7 +82,7 @@ In order to run its execution:
 
 ```
 cd CUDA/MS_CUDA
-./run_mean_shift.sh     # First Version implemented
+./run_mean_shift.sh     # Use argument 'info' to view only naive and shared timings
 ```
 
 It will run the naive and the shared memory versions.
@@ -90,6 +90,12 @@ It will run the naive and the shared memory versions.
 Inside CUDA/MS_CUDA one can also find a ./build.sh file that creates a bild folder and builds the projects.
 
 IF you already runned or build it, you can call the execute bash script.
+
+In order to run all tests, execute:
+```
+cd CUDA/MS_CUDA
+./create_all_timimgs.sh    # will print naive and shared memory timings for each data
+```
 
 ## Authors
 + <a href="https://github.com/AngeloDamante"> Angelo D'Amante </a>
