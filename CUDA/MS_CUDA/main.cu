@@ -30,19 +30,19 @@ __global__ void compute_weights_naive_kernel(float *data, float *data_tmp, const
     int y = x + 1;
     if (tid < POINTS_NUMBER) {
         float new_position[2] = {0.}; //DIM=2 so 2
-        float tot_weight = 0., sq_dist=0.;
+        float tot_weight = 0., eucl_dist=0.;
         int xloop, yloop;
         float weight;
         for (int i = 0; i < POINTS_NUMBER; ++i) {
             xloop = i * 2; //DIM=2 so *2
             yloop = xloop + 1;
-            sq_dist = 0.;
+            eucl_dist = 0.;
 
-            sq_dist += (data[x] - data[xloop]) * (data[x] - data[xloop]) 
+            eucl_dist += (data[x] - data[xloop]) * (data[x] - data[xloop]) 
             + (data[y] - data[yloop]) * (data[y] - data[yloop]);
 
-            if (sq_dist <= RADIUS) {
-                weight = expf(-sq_dist / BANDWIDTH);
+            if (eucl_dist <= RADIUS) {
+                weight = expf(-eucl_dist / BANDWIDTH);
                 new_position[0] += weight * data[xloop];
                 new_position[1] += weight * data[yloop];
                 tot_weight += weight;
@@ -88,17 +88,17 @@ __global__ void compute_weights_shared_mem_kernel(const float* data, float* data
         __syncthreads();
 		// Computes mean shift weights on shared memory datas
         int local_x_tile, local_y_tile;
-        float valid_radius, sq_dist, weight;
+        float valid_radius, eucl_dist, weight;
         for (int i = 0; i < TILE_WIDTH; ++i) {
             local_x_tile = i * 2; //DIM=2 so *2
             valid_radius = RADIUS * flag_data[i];
-            sq_dist = 0.;
+            eucl_dist = 0.;
 
-            sq_dist += (data[x] - local_data[local_x_tile]) * (data[x] - local_data[local_x_tile]) 
+            eucl_dist += (data[x] - local_data[local_x_tile]) * (data[x] - local_data[local_x_tile]) 
             + (data[y] - local_data[local_y_tile]) * (data[y] - local_data[local_y_tile]);
 
-            if (sq_dist <= valid_radius) {
-                weight = expf(-sq_dist / BANDWIDTH);
+            if (eucl_dist <= valid_radius) {
+                weight = expf(-eucl_dist / BANDWIDTH);
                 new_position[0] += (weight * local_data[local_x_tile]);
                 new_position[1] += (weight * local_data[local_y_tile]);
                 tot_weight += (weight * flag_data[i]);
