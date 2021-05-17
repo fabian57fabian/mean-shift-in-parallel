@@ -11,7 +11,7 @@ const int CONSOLE_WIDTH = 57;
 // Mean shift params
 const float RADIUS = 60;
 const float SIGMA = 4;
-const float SIGMA_POWER = (2 * SIGMA * SIGMA);
+const float BANDWIDTH = (2 * SIGMA * SIGMA);
 const float MIN_DISTANCE = 60;
 const size_t NUM_ITER = 50;
 const float EPSILON_CHECK_CENTROIDS = 10;
@@ -21,7 +21,7 @@ const int CENTROIDS_NUMBER = 3;
 const int POINTS_NUMBER = 10000;
 
 // Device
-const int THREADS = 512;
+const int THREADS = 128;
 const int TILE_WIDTH = THREADS;
 
 __global__ void compute_weights_naive_kernel(float *data, float *data_tmp, const int POINTS_NUMBER) {
@@ -42,7 +42,7 @@ __global__ void compute_weights_naive_kernel(float *data, float *data_tmp, const
             + (data[y] - data[yloop]) * (data[y] - data[yloop]);
 
             if (sq_dist <= RADIUS) {
-                weight = expf(-sq_dist / SIGMA_POWER);
+                weight = expf(-sq_dist / BANDWIDTH);
                 new_position[0] += weight * data[xloop];
                 new_position[1] += weight * data[yloop];
                 tot_weight += weight;
@@ -98,7 +98,7 @@ __global__ void compute_weights_shared_mem_kernel(const float* data, float* data
             + (data[y] - local_data[local_y_tile]) * (data[y] - local_data[local_y_tile]);
 
             if (sq_dist <= valid_radius) {
-                weight = expf(-sq_dist / SIGMA_POWER);
+                weight = expf(-sq_dist / BANDWIDTH);
                 new_position[0] += (weight * local_data[local_x_tile]);
                 new_position[1] += (weight * local_data[local_y_tile]);
                 tot_weight += (weight * flag_data[i]);
