@@ -245,7 +245,7 @@ int execute_mean_shift(bool USE_SHARED, bool DEBUG) {
     cudaMemcpy(data.data(), dev_data, data_bytes, cudaMemcpyDeviceToHost);
     const auto centroids = reduce_to_centroids<POINTS_NUMBER, D>(data, MIN_DISTANCE);
     const std::chrono::duration<double, std::milli> duration_mean_shift = std::chrono::system_clock::now() - starting_mean_shift_time;
-    if (DEBUG) std::cout << console_log_time("Duration: ", duration_mean_shift) << std::endl; else std::cout << duration_mean_shift.count() << std::endl;
+    if (DEBUG) std::cout << console_log_time("Duration: ", duration_mean_shift) << std::endl; else std::cout << duration_mean_shift.count();
 
     // Copy from GPU and de-allocate
     cudaFree(dev_data);
@@ -288,6 +288,8 @@ int main(int argc, char *argv[]){
         INFO = strcmp( argv[1], "info") == 0;
     }
     const int res1 = execute_mean_shift(false, !INFO);
+    std::cout << ",";
     const int res2 = execute_mean_shift(true, !INFO);
+    std::cout << std::endl;
     return res1 + res2;
 }

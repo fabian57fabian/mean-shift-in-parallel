@@ -94,7 +94,7 @@ IF you already runned or build it, you can call the execute bash script.
 In order to run all tests, execute:
 ```
 cd CUDA/MS_CUDA
-./create_all_timimgs.sh    # will print naive and shared memory timings for each data
+./create_all_timimgs.sh    # Add also ' > results.csv' to output to a csv file
 ```
 
 ## Authors

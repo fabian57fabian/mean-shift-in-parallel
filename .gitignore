@@ -25,6 +25,9 @@ docker-compose.yaml
 # Makefile
 build/
 
+# Own resulta file
+CUDA/MS_CUDA/results.csv
+
 # Datas folder
 datas/*
 
