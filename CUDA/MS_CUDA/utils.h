@@ -51,83 +51,12 @@ namespace utils_ns {
         return;
     }
 
-    template <const size_t N, const size_t D>
-    void print_data(const std::array<float, N * D>& data) {
-        for (const auto& c : data) {
-            for (int i = 0; i < D; i++)
-                std::cout << c << ' ';
-            std::cout << '\n';
-        }
-        return;
-    }
-
-    template <const size_t D>
-    void print_data(const std::vector<std::array<float, D>>& data) {
-        for (const auto& c : data) {
-            for (int i = 0; i < D; i++)
-                std::cout << c[i] << ' ';
-            std::cout << '\n';
-        }
-        return;
-    }
-
     void swap(float* &a, float* &b){
         float *temp = a;
         a = b;
         b = temp;
         return;
     }
-
-    template <const size_t N, const size_t D>
-    std::vector<std::array<float, D>> reduce_to_centroids(std::array<float, N * D>& data, const float min_distance) {
-        std::vector<std::array<float, D>> centroids;
-        centroids.reserve(4);
-        std::array<float, D> first_centroid;
-        for (size_t j = 0; j < D; ++j) {
-            first_centroid[j] = data[j];
-        }
-        centroids.emplace_back(first_centroid);
-        for (size_t i = 0; i < N; ++i) {
-            bool at_least_one_close = false;
-            for (const auto& c : centroids) {
-                float dist = 0;
-                for (size_t j = 0; j < D; ++j) {
-                    dist += ((data[i * D + j] - c[j])*(data[i * D + j] - c[j]));
-                }
-                if (dist <= min_distance) {
-                    at_least_one_close = true;
-                }
-            }
-            if (!at_least_one_close) {
-                std::array<float, D> centroid;
-                for (size_t j = 0; j < D; ++j) {
-                    centroid[j] = data[i * D + j];
-                }
-                centroids.emplace_back(centroid);
-            }
-        }
-        return centroids;
-    }
-
-    template <const size_t M, const size_t D>
-    bool are_close_to_real(const std::vector<std::array<float, D>>& centroids,
-                           const std::array<float, M * D>& real,
-                           const float eps_to_real) {
-        std::array<bool, M> are_close {false};
-        for (size_t i = 0; i < M; ++i) {
-            for (size_t j = 0; j < M; ++j) {
-                float dist = 0;
-                for (size_t k = 0; k < D; ++k) {
-                    dist += ((centroids[i][k] - real[j * D + k])*(centroids[i][k] - real[j * D + k]));
-                }
-                if (dist <= eps_to_real) {
-                    are_close[i] = true;
-                }
-            }
-        }
-        return std::all_of(are_close.begin(), are_close.end(), [](const bool b){return b;}); 
-    }
-
 }
 
 #endif

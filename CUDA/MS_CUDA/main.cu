@@ -4,6 +4,12 @@
 #include "utils.h"
 #include <stdio.h>
 #include <iomanip>
+#include <array>
+#include <algorithm>
+#include <cassert>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 // Printing params
 const int CONSOLE_WIDTH = 57;
@@ -127,6 +133,57 @@ std::string console_log_time(std::string log, const std::chrono::duration<double
     return console_log(log + std::to_string(duration.count()) + "ms");
 }
 
+
+template <const size_t N, const size_t D>
+std::vector<std::array<float, D>> reduce_to_centroids(std::array<float, N * D>& data, const float min_distance) {
+    std::vector<std::array<float, D>> centroids;
+    centroids.reserve(4);
+    std::array<float, D> first_centroid;
+    for (size_t j = 0; j < D; ++j) {
+        first_centroid[j] = data[j];
+    }
+    centroids.emplace_back(first_centroid);
+    for (size_t i = 0; i < N; ++i) {
+        bool at_least_one_close = false;
+        for (const auto& c : centroids) {
+            float dist = 0;
+            for (size_t j = 0; j < D; ++j) {
+                dist += ((data[i * D + j] - c[j])*(data[i * D + j] - c[j]));
+            }
+            if (dist <= min_distance) {
+                at_least_one_close = true;
+            }
+        }
+        if (!at_least_one_close) {
+            std::array<float, D> centroid;
+            for (size_t j = 0; j < D; ++j) {
+                centroid[j] = data[i * D + j];
+            }
+            centroids.emplace_back(centroid);
+        }
+    }
+    return centroids;
+}
+
+template <const size_t M, const size_t D>
+bool are_close_to_real(const std::vector<std::array<float, D>>& centroids,
+                       const std::array<float, M * D>& real,
+                       const float eps_to_real) {
+    std::array<bool, M> are_close {false};
+    for (size_t i = 0; i < M; ++i) {
+        for (size_t j = 0; j < M; ++j) {
+            float dist = 0;
+            for (size_t k = 0; k < D; ++k) {
+                dist += ((centroids[i][k] - real[j * D + k])*(centroids[i][k] - real[j * D + k]));
+            }
+            if (dist <= eps_to_real) {
+                are_close[i] = true;
+            }
+        }
+    }
+    return std::all_of(are_close.begin(), are_close.end(), [](const bool b){return b;}); 
+}
+
 int execute_mean_shift(bool USE_SHARED) {
     const int D = 2;
     const int BLOCKS = (POINTS_NUMBER + THREADS - 1) / THREADS;
@@ -181,7 +238,7 @@ int execute_mean_shift(bool USE_SHARED) {
         utils_ns::swap(dev_data, dev_data_tmp);
     }
     cudaMemcpy(data.data(), dev_data, data_bytes, cudaMemcpyDeviceToHost);
-    const auto centroids = utils_ns::reduce_to_centroids<POINTS_NUMBER, D>(data, MIN_DISTANCE);
+    const auto centroids = reduce_to_centroids<POINTS_NUMBER, D>(data, MIN_DISTANCE);
     const std::chrono::duration<double, std::milli> duration_mean_shift = std::chrono::system_clock::now() - starting_mean_shift_time;
     std::cout << console_log_time("Duration: ", duration_mean_shift) << std::endl;
 
@@ -204,8 +261,8 @@ int execute_mean_shift(bool USE_SHARED) {
 
     // Check if these centroids are sufficiently close to real ones
     const std::array<float, CENTROIDS_NUMBER * D> real = utils_ns::load_csv<CENTROIDS_NUMBER, D>(PATH_TO_CENTROIDS, ',');
-    const bool are_close = utils_ns::are_close_to_real<CENTROIDS_NUMBER, D>(centroids, real, EPSILON_CHECK_CENTROIDS);
-    if (!utils_ns::are_close_to_real<CENTROIDS_NUMBER, D>(centroids, real, EPSILON_CHECK_CENTROIDS)){
+    const bool are_close = are_close_to_real<CENTROIDS_NUMBER, D>(centroids, real, EPSILON_CHECK_CENTROIDS);
+    if (!are_close_to_real<CENTROIDS_NUMBER, D>(centroids, real, EPSILON_CHECK_CENTROIDS)){
         std::cout << console_log("ERROR: resulting centroids are too different from originals!") << std::endl;
         return 2;
     }
