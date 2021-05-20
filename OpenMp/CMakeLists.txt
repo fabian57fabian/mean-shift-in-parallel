@@ -2,8 +2,17 @@ cmake_minimum_required(VERSION 3.10)
 project(MS LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-add_definitions(-Dnum_points=$ENV{DATAS})
-add_definitions(-Dnthreads=$ENV{THREADS})
+if(DEFINED ENV{DATAS})
+    add_definitions(-Dnum_points=$ENV{DATAS})
+else()
+    add_definitions(-Dnum_points=1000)
+endif()
+
+if(DEFINED ENV{THREADS})
+    add_definitions(-Dnthreads=$ENV{THREADS})
+else()
+    add_definitions(-Dnthreads=8)
+endif()
 
 ## OpenMp compiler
 set(CMAKE_CXX_COMPILER "/opt/local/bin/clang++-mp-3.9")

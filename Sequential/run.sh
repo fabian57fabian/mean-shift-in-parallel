@@ -1,2 +1,3 @@
 ./build.sh
-./execute.sh
+cd build
+./ms_sequential

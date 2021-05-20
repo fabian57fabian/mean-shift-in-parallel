@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 project(MS LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-add_definitions(-Dnum_points=$ENV{DATAS})
+if(DEFINED ENV{DATAS})
+    add_definitions(-Dnum_points=$ENV{DATAS})
+else()
+    add_definitions(-Dnum_points=1000)
+endif()
 
 ## libraries
 include_directories(include datas build)

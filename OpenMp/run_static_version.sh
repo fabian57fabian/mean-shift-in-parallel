@@ -1,2 +1,3 @@
 ./build.sh
-./execute_static.sh
+cd build
+./ms_omp_static

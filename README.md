@@ -74,6 +74,14 @@ cd OpenMp
 ./run_dynamic_version.sh
 ```
 
+If you want to run tests for the Sequential, OpenMP static and dynamic versions, then the following lines of code will produce all three csv files in the results folder.
+```
+cd results
+./extract_timings_seq_omp.sh     # produce timings in csv
+
+python3 extract_speedup.py       # produce speedups in csv
+```
+
 ## Parallel CUDA version
 
 Proposed version was made in naive and shared memory version.

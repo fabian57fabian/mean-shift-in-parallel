@@ -4,4 +4,4 @@ mkdir $WORKING_DIR
 cd $WORKING_DIR
 cmake ..
 make
-cd ..
+# cd ..

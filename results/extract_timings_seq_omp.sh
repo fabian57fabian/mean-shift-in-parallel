@@ -37,7 +37,7 @@ do
     do
         export THREADS=${t}
 
-        echo -e "\e[34m computing OMP static version with ${DATAS} points and ${THREADS} threads \e[0m"
+        echo -e "\e[31m computing OMP static version with ${DATAS} points and ${THREADS} threads \e[0m"
 
         cmake .. && make
         svalue=(${svalue},$(./ms_omp_static))

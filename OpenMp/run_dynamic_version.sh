@@ -1,2 +1,3 @@
 ./build.sh
-./execute_dynamic.sh
+cd build
+./ms_omp_dynamic
