@@ -51,25 +51,31 @@ And centroid reduction parti will be sequential.
 
 
 ## Sequential version
-Implementation of mean-shift algorithm in sequential version.
-
+Implementation of mean-shift algorithm in sequential version. The dataset is chosen by the environment variable DATAS set to 1000 by default.
 ```
 cd Sequential 
-./run.sh
+./run.sh    # DATAS=1000
+# OR
+export DATAS=5000
+./runs.sh   # run with 5000 dataset size (example)
 ```
 
-
 ## Parallel OpenMP version
-Implementation of parallel version with openMp fork-join paradigm. For this version, two versions were implemented, <i>static</i> and <i>dynamic</i>.
+Implementation of parallel version with openMp fork-join paradigm. For this version, two versions were implemented, <i>static</i> and <i>dynamic</i>. The number of threads is chosen by the environment variable THREADS set to 8 by default.
 
 To run static version,
 ```
 cd OpenMp
-./run_static_version.sh
+./run_static_version.sh    # DATAS=1000 and THREADS=8
+# OR
+export THREADS=4
+export DATAS=10000
+./run_static_version.sh    # run with 10000 dataset size and 4 threads
 ```
 
 and for dynamic version
 ```
+# In this case, only env variable DATAS is settable.
 cd OpenMp
 ./run_dynamic_version.sh
 ```
