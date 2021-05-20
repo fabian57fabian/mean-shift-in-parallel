@@ -83,7 +83,6 @@ If you want to run tests for the Sequential, OpenMP static and dynamic versions,
 ```
 cd results
 ./extract_timings_seq_omp.sh     # produce timings in csv
-
 python3 extract_speedup.py       # produce speedups in csv
 ```
 
@@ -108,6 +107,13 @@ In order to run all tests, execute:
 ```
 cd CUDA/MS_CUDA
 ./create_all_timimgs.sh    # Add also ' > results.csv' to output to a csv file
+```
+
+### Evaluate Speedup
+All csv speedups are obtained with python script,
+```
+cd results
+python3 extract_speedup.py
 ```
 
 ## Authors
