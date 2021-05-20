@@ -15,16 +15,13 @@ namespace ms
         namespace stat
         {
             template <typename T, const size_t N, const size_t D>
-            std::vector<utils::vec<T, D>> cluster_points(utils::mat<T, N, D> &data, const size_t niter, \
-            float bandwidth, const float radius, const float min_distance, const size_t num_threads)
+            std::vector<utils::vec<T, D>> cluster_points(utils::mat<T, N, D> &data, size_t niter, float bandwidth, float radius, float min_distance, size_t num_threads)
             {
-                const float double_sqr_bdw = 2 * bandwidth * bandwidth;
+                float double_sqr_bdw = 2 * bandwidth * bandwidth;
                 utils::mat<T, N, D> new_data;
                 for (size_t i = 0; i < niter; ++i) // number_iterations
                 {
-                    #pragma omp parallel for default(none) \ 
-                    shared(data, niter, bandwidth, radius, double_sqr_bdw, new_data) \ 
-                    schedule(static) num_threads(num_threads)
+                    #pragma omp parallel for default(none) shared(data, niter, bandwidth, radius, double_sqr_bdw, new_data) schedule(static) num_threads(num_threads)
                     for (size_t p = 0; p < N; ++p)
                     {
                         utils::vec<T, D> new_position{};
@@ -51,16 +48,13 @@ namespace ms
         namespace dyn
         {
             template <typename T, const size_t N, const size_t D>
-            std::vector<utils::vec<T, D>> cluster_points(utils::mat<T, N, D> &data, const size_t niter, \ 
-            const float bandwidth, const float radius, const float min_distance)
+            std::vector<utils::vec<T, D>> cluster_points(utils::mat<T, N, D> &data, size_t niter, float bandwidth, float radius, float min_distance)
             {
-                const float double_sqr_bdw = 2 * bandwidth * bandwidth;
+                float double_sqr_bdw = 2 * bandwidth * bandwidth;
                 utils::mat<T, N, D> new_data;
                 for (size_t i = 0; i < niter; ++i)
                 {
-                    #pragma omp parallel for default(none) \ 
-                    shared(data, niter, bandwidth, radius, double_sqr_bdw, new_data) \ 
-                    schedule(dynamic) 
+                    #pragma omp parallel for default(none) shared(data, niter, bandwidth, radius, double_sqr_bdw, new_data) schedule(dynamic)
                     for (size_t p = 0; p < N; ++p)
                     {
                         utils::vec<T, D> new_position{};

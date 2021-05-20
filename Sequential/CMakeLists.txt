@@ -2,13 +2,17 @@ cmake_minimum_required(VERSION 3.10)
 project(MS LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
+add_definitions(-Dnum_points=$ENV{DATAS})
+
 ## libraries
-include_directories(include datas)
-set(INCLUDE_FILES 
+include_directories(include datas build)
+set(
+    INCLUDE_FILES 
     include/meanShift.hpp 
     include/utils.hpp
     include/utils.cpp
-    include/geometricFunction.hpp)
+    include/geometricFunction.hpp
+)
 add_library(libInclude STATIC ${INCLUDE_FILES})
 
 ## C++

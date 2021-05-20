@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 project(MS LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
+add_definitions(-Dnum_points=$ENV{DATAS})
+add_definitions(-Dnthreads=$ENV{THREADS})
+
 ## OpenMp compiler
 set(CMAKE_CXX_COMPILER "/opt/local/bin/clang++-mp-3.9")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp")

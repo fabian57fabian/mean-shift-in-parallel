@@ -12,8 +12,7 @@ namespace ms
     namespace seq
     {
         template <typename T, const size_t N, const size_t D>
-        std::vector<utils::vec<T, D>> cluster_points(utils::mat<T, N, D> &data, const size_t niter, \ 
-        const float bandwidth, const float radius, const float min_distance)
+        std::vector<utils::vec<T, D>> cluster_points(utils::mat<T, N, D> &data, const size_t niter, const float bandwidth, const float radius, const float min_distance)
         {
             const float double_sqr_bdw = 2 * bandwidth * bandwidth;
             utils::mat<T, N, D> new_data;
@@ -29,8 +28,7 @@ namespace ms
                         if (dist <= radius)
                         {
                             float gaussian = std::exp(-dist / double_sqr_bdw);
-                            new_position = new_position + data[q] * gaussian;
-                            // new_position = utils::op::operator+(new_position, utils::op::operator*(data[q], gaussian));
+                            new_position = utils::op::operator+(new_position, utils::op::operator*(data[q], gaussian));
                             sum_weights += gaussian;
                         }
                     }
