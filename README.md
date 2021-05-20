@@ -12,7 +12,6 @@ Where K is a gaussian kernel:
 And centroid reduction parti will be sequential.
 
 
-
 ### Project tree
 
 ```bash 
