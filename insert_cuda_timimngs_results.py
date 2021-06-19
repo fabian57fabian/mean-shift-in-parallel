@@ -29,14 +29,14 @@ def insert_timings_cuda_to_results_folder(fn: str, min_t: int = 8):
         spamwriter = csv.writer(file_naive_out, delimiter=',')
         header = ["dataset"]+["t{}".format(t) for t in tiles]
         spamwriter.writerow(header)
-        for k, v in datas_naive.items():
-            spamwriter.writerow([k]+v)
+        for k in sorted(datas_naive):
+            spamwriter.writerow([k]+datas_naive[k])
 
     with open("results/timings_cuda_shared.csv", 'w') as file_sm_out:
         spamwriter = csv.writer(file_sm_out, delimiter=',')
         spamwriter.writerow(["dataset"]+["t{}".format(t) for t in tiles])
-        for k, v in datas_sm.items():
-            spamwriter.writerow([k]+v)
+        for k in sorted(datas_sm):
+            spamwriter.writerow([k]+datas_sm[k])
 
     # write out file naive
     # write out file sm
