@@ -20,7 +20,7 @@ const float BANDWIDTH = (2 * SIGMA * SIGMA);
 const float MIN_DISTANCE = 60;
 const size_t NUM_ITER = 50;
 const float EPSILON_CHECK_CENTROIDS = 10;
-const bool CHECK_RIGHT_CENTROIDS = true;
+const bool CHECK_RIGHT_CENTROIDS = false;
 
 // Dataset
 const int CENTROIDS_NUMBER = 3;
@@ -190,7 +190,8 @@ bool are_close_to_real(const std::vector<std::array<float, D>>& centroids,
 }
 
 int execute_mean_shift(bool USE_SHARED, bool DEBUG) {
-
+    bool use_docker = true;
+    std::string initial_path = use_docker ? "/MS_CUDA/" :  "../../";
     // Print useful infos
     if (DEBUG) std::cout << separation_line() << std::endl;
     if (DEBUG) std::cout << console_log(USE_SHARED?"CUDA MEAN SHIFT: SHARED MEMORY":"CUDA MEAN SHIFT: NAIVE") << std::endl;
@@ -200,8 +201,8 @@ int execute_mean_shift(bool USE_SHARED, bool DEBUG) {
     if (DEBUG) std::cout << separation_line() << std::endl;
 
     //Compute paths
-    const std::string PATH_TO_DATA = "../../datas/"+std::to_string(POINTS_NUMBER)+"/points.csv";
-    const std::string PATH_TO_CENTROIDS = "../../datas/"+std::to_string(POINTS_NUMBER)+"/centroids.csv";
+    const std::string PATH_TO_DATA = initial_path+"datas/"+std::to_string(POINTS_NUMBER)+"/points.csv";
+    const std::string PATH_TO_CENTROIDS = initial_path+"datas/"+std::to_string(POINTS_NUMBER)+"/centroids.csv";
 
     const auto start_prog = std::chrono::system_clock::now();
 

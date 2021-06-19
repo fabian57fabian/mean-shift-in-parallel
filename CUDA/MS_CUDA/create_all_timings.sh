@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "THREADS,POINTS_NUMBER,NAIVE,SHARED"
-dirs=( $( ls ../../datas ) )
+#dirs=( $( ls ../../datas ) )
+dirs=( $( ls /MS_CUDA/datas ) )
 for thr in 4 8 16 32 64 128 256 512 1024
 do
 for dir in "${dirs[@]}"
