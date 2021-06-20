@@ -9,22 +9,23 @@ out_folder = 'plots/GTX1050TIm'
 #out_folder = 'plots/RTX2060'
 show_plots=False
 
-def create_result_plot(fn:str, transpose=True):
+def create_result_plot(fn:str, transpose=True, debug=False):
     path = os.path.join(src_folder, fn)
     if not os.path.exists(path):
         print("File does not exists: {}".format(fn))
         return
-    print()
+    if debug: print()
     print(fn)
     df = pd.read_csv(path)
     df.set_index("dataset", inplace=True)
-    print(df.head())
+    if debug: print(df.head())
     if transpose: df = df.transpose()
-    print(df.head())
-    print(df.columns)
+    if debug: print(df.head())
+    if debug: print(df.columns)
     _type, _framework, _version = fn[:-4].split('_')
     ax = df.plot(title="{} for {} ({} version)".format(_type, _framework, _version), marker='.', markersize=10, figsize=(12, 7))
-    ax.set_xlabel("Tile Width" if _framework == "cuda" else "Threads")
+    x_label = ("Tile Width" if _framework == "cuda" else "Threads") if transpose else "dataset size"
+    ax.set_xlabel(x_label)
     ax.set_ylabel("Time (seconds)" if _type == "timings" else "Speedup value")
     if show_plots: plt.show()
     fig = ax.get_figure()
