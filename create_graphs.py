@@ -3,10 +3,8 @@ import csv
 import matplotlib.pyplot as plt
 import pandas as pd
 
-src_folder = 'results'
-out_folder = 'plots/GTX1050TIm'
-#src_folder = 'results/RTX2060'
-#out_folder = 'plots/RTX2060'
+src_folder = 'results/GTX1050TI'
+out_folder = 'plots/GTX1050TI'
 show_plots=False
 
 def create_result_plot(fn:str, transpose=True, debug=False):
