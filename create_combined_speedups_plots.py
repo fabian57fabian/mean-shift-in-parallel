@@ -2,13 +2,14 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-out_folder = "plots/GTX1050TI"
+gpu_folder_name = "GTX1050TI"
+out_folder = "plots/"+gpu_folder_name
 show_plots = False
 
 
-def create_combined(transpose:bool, debug=False):
-    pd_1 = pd.read_csv("results/GTX1050TI/speedups_cuda_naive.csv")
-    pd_2 = pd.read_csv("results/GTX1050TI/speedups_cuda_shared.csv")
+def create_combined(transpose: bool, debug=False):
+    pd_1 = pd.read_csv("results/{}/speedups_cuda_naive.csv".format(gpu_folder_name))
+    pd_2 = pd.read_csv("results/{}/speedups_cuda_shared.csv".format(gpu_folder_name))
 
     df = pd.DataFrame(pd_1["dataset"])
     df["naive"] = pd_1["t64"]
