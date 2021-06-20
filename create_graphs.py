@@ -27,7 +27,7 @@ def create_result_plot(fn:str, transpose=True, debug=False):
     ax.set_ylabel("Time (seconds)" if _type == "timings" else "Speedup value")
     if show_plots: plt.show()
     fig = ax.get_figure()
-    fig.savefig(os.path.join(out_folder, fn[:-4]+"{}.jpg".format("_by_dataset" if transpose else "_by_t")))
+    fig.savefig(os.path.join(out_folder, fn[:-4]+"{}.jpg".format("_by_t" if transpose else "_by_dataset")))
 
 def create_plots():
     for file in os.listdir(src_folder):
