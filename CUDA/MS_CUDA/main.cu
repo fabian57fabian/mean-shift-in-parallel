@@ -101,6 +101,7 @@ __global__ void compute_weights_shared_mem_kernel(const float* data, float* data
         float valid_radius, eucl_dist, weight;
         for (int i = 0; i < TILE_WIDTH; ++i) {
             local_x_tile = i * 2; //DIM=2 so *2
+            local_y_tile = local_x_tile + 1;
             valid_radius = RADIUS * flag_data[i];
             eucl_dist = 0.;
 
