@@ -13,8 +13,8 @@ def create_combined_omp(debug=False):
     pd_2 = pd.read_csv("results/{}/speedups_omp_dynamic.csv".format(gpu_folder_name2))
 
     df = pd.DataFrame(pd_1["dataset"])
-    df["GTX1050TI"] = pd_1["speedup"]
-    df["GTX1660TI"] = pd_2["speedup"]
+    df["i7-8750H"] = pd_1["speedup"]
+    df["i7-9700K"] = pd_2["speedup"]
 
     df.set_index("dataset", inplace=True)
     if debug: print(df.head())
